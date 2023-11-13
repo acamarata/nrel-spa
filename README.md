@@ -13,7 +13,7 @@ npm install nrel-spa
 Basic usage examples:
 
 ```javascript
-const { getSpa, calcSpa } = require('./index');
+const { getSpa, calcSpa } = require('nrel-spa');
 
 const date = new Date();
 console.log(date)
