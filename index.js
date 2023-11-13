@@ -18,7 +18,7 @@ function adjustForCustomAngle(baseSpaData, zenithAngle) {
     return adjustedData;
 }
 
-function getSpa(date, lat, lng, tz, params = null, angles = []) {
+function getSpa(date, lat, lng, tz = 0, params = null, angles = []) {
     let data = new spa.SpaData();
     data.year = date.getFullYear();
     data.month = date.getMonth() + 1; // JavaScript months are 0-indexed
@@ -64,7 +64,7 @@ function getSpa(date, lat, lng, tz, params = null, angles = []) {
     return output;
 }
 
-function calcSpa(date, lat, lng, tz, params = null, angles = []) {
+function calcSpa(date, lat, lng, tz = 0, params = null, angles = []) {
     let rawData = getSpa(date, lat, lng, tz, params, angles);
     rawData.sunrise = fractalTime(rawData.sunrise);
     rawData.solarNoon = fractalTime(rawData.solarNoon);

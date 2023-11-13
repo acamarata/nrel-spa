@@ -1,6 +1,6 @@
 {
   "name": "nrel-spa",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "NREL SPA native implementation in JS",
   "main": "index.js",
   "scripts": {
