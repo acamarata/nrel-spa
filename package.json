@@ -1,6 +1,6 @@
 {
   "name": "nrel-spa",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "NREL SPA native implementation in JS",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,5 @@
   "bugs": {
     "url": "https://github.com/ussunnah/nrel-spa/issues"
   },
-  "homepage": "https://github.com/ussunnah/nrel-spa#readme",
-  "devDependencies": {
-  }
+  "homepage": "https://github.com/ussunnah/nrel-spa#readme"
 }

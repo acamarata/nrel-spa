@@ -1,17 +1,34 @@
 const { getSpa, calcSpa } = require('./index');
 
-// Constants for testing
-const myLat = 40.7128; // Latitude for New York City
-const myLng = -74.006; // Longitude for New York City
-const nyDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
-const myDate = new Date(); // Date object for today with NY time zone
-const myAngles = [63.435]; // Custom angles for twilight calculations
+const date = new Date();
+console.log(date)
+
+/* NYC - minimum params
+const city = "New York"
+const lat = 40.7128;
+const lng = -74.006;
+const tz = -5;
+const params = null
+const angles = []
+*/
+
+// Jakarta - all params
+const city = "Jakarta"
+const lat = -6.2088
+const lng = 106.8456
+const tz = 7
+const elevation = 18
+const temperature = 26.56
+const pressure = 1017
+const params = {elevation, temperature, pressure}
+const angles = [63.435]
+
 
 // Get results
-const get = getSpa(myDate, myLat, myLng, null, myAngles);
-const calc = calcSpa(myDate, myLat, myLng, null, myAngles);
+const get = getSpa(date, lat, lng, tz, params, angles);
+const calc = calcSpa(date, lat, lng, tz, params, angles);
 
 // Print results
-console.log("\nTest: Using NYC and current time:\n")
-console.log("getSpa =", JSON.stringify(get, null, 2), "\n");
-console.log("calcSpa =", JSON.stringify(calc, null, 2), "\n");
+console.log(`\nTest: ${city} with current Date():\n`)
+console.log("getSpa =", get, "\n");
+console.log("calcSpa =", calc, "\n");
