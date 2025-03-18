@@ -1,14 +1,10 @@
 {
   "name": "nrel-spa",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "description": "NREL SPA native implementation in JS",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ussunnah/nrel-spa.git"
   },
   "keywords": [
     "spa",
@@ -16,10 +12,14 @@
     "solar",
     "calculator"
   ],
-  "author": "USF",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ussunnah/nrel-spa/issues"
+  "author": "Ali Camarata",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acamarata/nrel-spa.git"
   },
-  "homepage": "https://github.com/ussunnah/nrel-spa#readme"
+  "homepage": "https://github.com/acamarata/nrel-spa#readme",
+  "bugs": {
+    "url": "https://github.com/acamarata/nrel-spa/issues"
+  }
 }
