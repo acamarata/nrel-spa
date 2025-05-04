@@ -14,3 +14,10 @@ All notable changes to this project will be documented in this file.
 
 - Moved timezone to main args and changed default behavior (major)
 - Updated test cases and readme to reflect new usage (minor)
+
+## [1.3.0] - 2025-05-04
+
+- Major update to fix discrepancies between original C and this implementation
+- Folder "bin" added to compile and test against original C version
+- This NPM now gives the exact same results as the original NREL-SPA
+ 

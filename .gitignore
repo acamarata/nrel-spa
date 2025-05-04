@@ -1,2 +1,8 @@
 node_modules/
 .env
+
+# Ignore NREL SPA C sources and binaries
+/bin/spa
+/bin/spa_cli
+/bin/*.c
+/bin/*.h
