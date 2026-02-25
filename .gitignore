@@ -1,7 +1,27 @@
 node_modules/
-.env
+dist/
+*.tgz
+*.log
+.DS_Store
 
-# Ignore NREL SPA C sources and binaries
+# Environment
+.env
+.env.*
+!.env.example
+
+# AI Agents
+.claude/
+.cursor/
+.copilot/
+.github/copilot/
+.aider*
+.codeium/
+.tabnine/
+.windsurf/
+.cody/
+.sourcegraph/
+
+# NREL SPA C sources and binaries (download separately for reference testing)
 /bin/spa
 /bin/spa_cli
 /bin/*.c

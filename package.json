@@ -1,25 +1,71 @@
 {
   "name": "nrel-spa",
-  "version": "1.3.0",
-  "description": "NREL SPA native implementation in JS",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Calculates solar zenith, azimuth, sunrise, sunset, and solar noon for any location and date.",
+  "author": "Aric Camarata",
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist/",
+    "lib/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "node test.js"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "pretest": "tsup",
+    "test": "node test.mjs && node test-cjs.cjs",
+    "prepublishOnly": "tsup"
   },
   "keywords": [
+    "solar",
     "spa",
     "nrel",
-    "solar",
-    "calculator"
+    "sunrise",
+    "sunset",
+    "solar-noon",
+    "zenith",
+    "azimuth",
+    "solar-position",
+    "astronomy",
+    "twilight",
+    "javascript"
   ],
-  "author": "Ali Camarata",
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/acamarata/nrel-spa.git"
+    "url": "git+https://github.com/acamarata/nrel-spa.git"
   },
   "homepage": "https://github.com/acamarata/nrel-spa#readme",
   "bugs": {
     "url": "https://github.com/acamarata/nrel-spa/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }
