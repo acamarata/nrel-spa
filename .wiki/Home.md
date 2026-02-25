@@ -14,6 +14,7 @@ Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Compu
 - [Architecture](Architecture) - How the algorithm is structured and validated
 - [Twilight Calculations](Twilight-Calculations) - Custom zenith angles for civil, nautical, astronomical twilight
 - [NREL SPA Algorithm](NREL-SPA-Algorithm) - The algorithm background, accuracy, and reference
+- [Implementation Comparison](Implementation-Comparison) - Accuracy and performance: nrel-spa vs solar-spa vs C reference
 
 ## Quick Example
 
@@ -41,4 +42,4 @@ console.log(result.sunset);    // "20:30:35"
 
 ---
 
-[API Reference](API-Reference) . [Architecture](Architecture) . [Twilight Calculations](Twilight-Calculations) . [NREL SPA Algorithm](NREL-SPA-Algorithm)
+[API Reference](API-Reference) . [Architecture](Architecture) . [Twilight Calculations](Twilight-Calculations) . [NREL SPA Algorithm](NREL-SPA-Algorithm) . [Implementation Comparison](Implementation-Comparison)

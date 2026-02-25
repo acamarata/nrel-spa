@@ -1,6 +1,6 @@
 {
   "name": "nrel-spa",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Calculates solar zenith, azimuth, sunrise, sunset, and solar noon for any location and date.",
   "author": "Aric Camarata",
   "license": "MIT",

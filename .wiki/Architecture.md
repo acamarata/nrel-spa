@@ -25,9 +25,19 @@ nrel-spa/
 **src/index.ts** is a thin TypeScript wrapper. It:
 - Loads `lib/spa.js` at runtime
 - Validates input parameters, throwing `TypeError` or `RangeError` for invalid values
+- Validates `options.function` and throws `RangeError` for out-of-range codes
+- Returns `NaN` for `sunrise`, `solarNoon`, and `sunset` when the function code does not include RTS (`SPA_ZA` or `SPA_ZA_INC`)
 - Maps the flat SpaData structure to a clean output object
-- Implements `adjustForCustomAngle()` for twilight calculations
+- Implements `adjustForCustomAngle()` internally for twilight calculations
 - Provides `formatTime()` as a standalone export
+
+**src/types.ts** exports all public TypeScript interfaces and constants:
+- `SpaOptions` — atmospheric and calculation parameters
+- `SpaResult` / `SpaFormattedResult` — base return types for `getSpa` / `calcSpa`
+- `SpaAnglesResult` / `SpaFormattedAnglesResult` — per-angle entries in the `angles` array
+- `SpaResultWithAngles` / `SpaFormattedResultWithAngles` — return types when `angles` is passed
+- `SpaFunctionCode` — union type `0 | 1 | 2 | 3`
+- `SPA_ZA`, `SPA_ZA_INC`, `SPA_ZA_RTS`, `SPA_ALL` — function code constants
 
 **tsup** compiles `src/index.ts` to both CJS (`dist/index.cjs`) and ESM (`dist/index.mjs`) with TypeScript declarations. The `lib/spa.js` module is kept external (not bundled) and resolved at runtime via a `createRequire` shim in the ESM build.
 

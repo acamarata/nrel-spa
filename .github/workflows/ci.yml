@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         node-version: [20, 22, 24]
@@ -37,6 +39,8 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +58,8 @@ jobs:
 
   pack-check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -73,6 +79,6 @@ jobs:
         run: |
           npm pack --dry-run 2>&1 | tee pack-output.txt
           for f in dist/index.cjs dist/index.mjs dist/index.d.ts dist/index.d.mts lib/spa.js README.md CHANGELOG.md LICENSE; do
-            grep -q "$f" pack-output.txt || { echo "MISSING: $f"; exit 1; }
+            grep -qE "(^|[[:space:]])${f}([[:space:]]|$)" pack-output.txt || { echo "MISSING: $f"; exit 1; }
           done
           echo "All expected files present in package"

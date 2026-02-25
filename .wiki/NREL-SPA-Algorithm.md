@@ -64,13 +64,13 @@ The SPA computes solar position through a chain of coordinate transformations:
 
 ## Comparison with solar-spa
 
-[solar-spa](https://www.npmjs.com/package/solar-spa) compiles the same NREL C source to WebAssembly via Emscripten. The two packages share the same algorithm and produce the same results. The practical difference:
+[solar-spa](https://www.npmjs.com/package/solar-spa) compiles the same NREL C source to WebAssembly via Emscripten. The two packages share the same algorithm and produce numerically identical results.
 
-- **nrel-spa** is synchronous, has no loading delay, and is simpler to use in most contexts
-- **solar-spa** is asynchronous (WASM initialization), but can achieve higher throughput for batch calculations (219,000 calls/sec for zenith-only vs. nrel-spa's ~100,000/sec)
+- **nrel-spa** is synchronous, requires no init, and uses UTC date components (portable across all machines)
+- **solar-spa** requires an async `init()` call, reads local date components, and runs 1.5–1.9× faster for sustained batch throughput
 
-For single-call or per-request use cases, nrel-spa is the better choice. For batch pre-computation of thousands of time steps, solar-spa's WASM throughput becomes relevant.
+For the full accuracy and performance comparison, including benchmarks across eight global locations and both SPA function codes, see the [Implementation Comparison](Implementation-Comparison) page.
 
 ---
 
-[Home](Home) . [API Reference](API-Reference) . [Architecture](Architecture) . [Twilight Calculations](Twilight-Calculations)
+[Home](Home) . [API Reference](API-Reference) . [Architecture](Architecture) . [Twilight Calculations](Twilight-Calculations) . [Implementation Comparison](Implementation-Comparison)

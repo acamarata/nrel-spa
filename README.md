@@ -23,7 +23,7 @@ const date = new Date('2025-06-21T00:00:00Z'); // UTC date/time
 const raw = getSpa(date, 40.7128, -74.006, -4); // New York, EDT (UTC-4)
 console.log(raw.sunrise);   // 5.417 (fractional hours)
 console.log(raw.solarNoon); // 12.965
-console.log(raw.sunset);    // 20.510
+console.log(raw.sunset);    // 20.509
 
 // Formatted output — same parameters, HH:MM:SS strings
 const fmt = calcSpa(date, 40.7128, -74.006, -4);
@@ -140,10 +140,18 @@ import {
   getSpa,
   calcSpa,
   formatTime,
+  SPA_ZA,
+  SPA_ZA_INC,
   SPA_ZA_RTS,
+  SPA_ALL,
+  type SpaOptions,
   type SpaResult,
   type SpaFormattedResult,
-  type SpaOptions,
+  type SpaAnglesResult,
+  type SpaFormattedAnglesResult,
+  type SpaResultWithAngles,
+  type SpaFormattedResultWithAngles,
+  type SpaFunctionCode,
 } from 'nrel-spa';
 ```
 

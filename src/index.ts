@@ -3,6 +3,7 @@ export type {
   SpaResult,
   SpaFormattedResult,
   SpaAnglesResult,
+  SpaFormattedAnglesResult,
   SpaResultWithAngles,
   SpaFormattedResultWithAngles,
   SpaFunctionCode,
@@ -17,6 +18,7 @@ import type {
   SpaFormattedResult,
   SpaResultWithAngles,
   SpaFormattedResultWithAngles,
+  SpaFormattedAnglesResult,
 } from './types.js';
 
 // The core SPA algorithm lives in lib/spa.js (the JS port of the NREL C source).
@@ -132,9 +134,34 @@ function adjustForCustomAngle(
  * @param longitude - Observer longitude in degrees (-180 to 180, negative = west)
  * @param timezone - Hours from UTC (e.g., -4 for EDT). Default: 0
  * @param options - Optional atmospheric and calculation parameters
- * @param angles - Custom zenith angles in degrees for twilight calculations
- * @returns Solar position result with computed values
+ * @returns Solar position result with raw numerical values
  */
+export function getSpa(
+  date: Date,
+  latitude: number,
+  longitude: number,
+  timezone?: number | null,
+  options?: SpaOptions | null,
+): SpaResult;
+/**
+ * Compute solar position and resolve custom zenith angles (e.g., twilight).
+ *
+ * @param date - JavaScript Date object (uses UTC components)
+ * @param latitude - Observer latitude in degrees (-90 to 90, negative = south)
+ * @param longitude - Observer longitude in degrees (-180 to 180, negative = west)
+ * @param timezone - Hours from UTC (e.g., -4 for EDT). Default: 0
+ * @param options - Atmospheric and calculation parameters (pass null for defaults)
+ * @param angles - Custom zenith angles in degrees. Common: 96 civil, 102 nautical, 108 astronomical
+ * @returns Solar position result including an angles array
+ */
+export function getSpa(
+  date: Date,
+  latitude: number,
+  longitude: number,
+  timezone: number | null | undefined,
+  options: SpaOptions | null | undefined,
+  angles: [number, ...number[]],
+): SpaResultWithAngles;
 export function getSpa(
   date: Date,
   latitude: number,
@@ -159,6 +186,20 @@ export function getSpa(
   const tz = timezone ?? 0;
   const opts = options ?? {};
 
+  const fnCode = opts.function ?? SPA_ZA_RTS;
+  if (fnCode !== 0 && fnCode !== 1 && fnCode !== 2 && fnCode !== 3) {
+    throw new RangeError(
+      `SPA: options.function must be 0 (SPA_ZA), 1 (SPA_ZA_INC), 2 (SPA_ZA_RTS), or 3 (SPA_ALL), got ${fnCode}`,
+    );
+  }
+
+  // Custom angle calculations depend on suntransit, which requires an RTS function code.
+  if (angles && angles.length > 0 && fnCode !== 2 && fnCode !== 3) {
+    throw new RangeError(
+      'SPA: custom zenith angle calculations require an RTS function code (SPA_ZA_RTS or SPA_ALL)',
+    );
+  }
+
   const d = new spa.SpaData();
   d.year = date.getUTCFullYear();
   d.month = date.getUTCMonth() + 1;
@@ -178,19 +219,23 @@ export function getSpa(
   d.slope = opts.slope ?? 0;
   d.azm_rotation = opts.azm_rotation ?? 0;
   d.atmos_refract = opts.atmos_refract ?? 0.5667;
-  d.function = opts.function ?? SPA_ZA_RTS;
+  d.function = fnCode;
 
   const rc = spa.spa_calculate(d);
   if (rc !== 0) {
     throw new Error(`SPA: calculation failed (error code ${rc})`);
   }
 
+  // sunrise, solarNoon, sunset are only computed for SPA_ZA_RTS (2) and SPA_ALL (3).
+  // For SPA_ZA and SPA_ZA_INC, those fields are never populated — return NaN so
+  // callers and formatTime() handle them correctly rather than silently returning 0.
+  const hasRts = fnCode === 2 || fnCode === 3;
   const result: SpaResult = {
     zenith: d.zenith,
     azimuth: d.azimuth,
-    sunrise: d.sunrise,
-    solarNoon: d.suntransit,
-    sunset: d.sunset,
+    sunrise: hasRts ? d.sunrise : NaN,
+    solarNoon: hasRts ? d.suntransit : NaN,
+    sunset: hasRts ? d.sunset : NaN,
   };
 
   if (angles && angles.length > 0) {
@@ -214,27 +259,48 @@ export function calcSpa(
   longitude: number,
   timezone?: number | null,
   options?: SpaOptions | null,
+): SpaFormattedResult;
+/**
+ * Same as getSpa() with custom angles, but formats all time values as HH:MM:SS strings.
+ * Returns "N/A" for time fields during polar day or polar night.
+ */
+export function calcSpa(
+  date: Date,
+  latitude: number,
+  longitude: number,
+  timezone: number | null | undefined,
+  options: SpaOptions | null | undefined,
+  angles: [number, ...number[]],
+): SpaFormattedResultWithAngles;
+export function calcSpa(
+  date: Date,
+  latitude: number,
+  longitude: number,
+  timezone?: number | null,
+  options?: SpaOptions | null,
   angles?: number[],
 ): SpaFormattedResult | SpaFormattedResultWithAngles {
-  const raw = getSpa(date, latitude, longitude, timezone, options, angles);
+  if (angles !== undefined && angles.length > 0) {
+    const raw = getSpa(date, latitude, longitude, timezone, options, angles as [number, ...number[]]);
+    return {
+      zenith: raw.zenith,
+      azimuth: raw.azimuth,
+      sunrise: formatTime(raw.sunrise),
+      solarNoon: formatTime(raw.solarNoon),
+      sunset: formatTime(raw.sunset),
+      angles: raw.angles.map((a): SpaFormattedAnglesResult => ({
+        sunrise: formatTime(a.sunrise),
+        sunset: formatTime(a.sunset),
+      })),
+    };
+  }
 
-  const formatted: SpaFormattedResult = {
+  const raw = getSpa(date, latitude, longitude, timezone, options);
+  return {
     zenith: raw.zenith,
     azimuth: raw.azimuth,
     sunrise: formatTime(raw.sunrise),
     solarNoon: formatTime(raw.solarNoon),
     sunset: formatTime(raw.sunset),
   };
-
-  if ('angles' in raw && raw.angles) {
-    return {
-      ...formatted,
-      angles: raw.angles.map((a) => ({
-        sunrise: formatTime(a.sunrise),
-        sunset: formatTime(a.sunset),
-      })),
-    } as SpaFormattedResultWithAngles;
-  }
-
-  return formatted;
 }

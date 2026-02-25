@@ -16,10 +16,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout wiki
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}.wiki
-          path: .wiki-remote
+        run: |
+          git clone "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.wiki.git" .wiki-remote \
+          || (mkdir -p .wiki-remote \
+              && cd .wiki-remote \
+              && git init \
+              && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.wiki.git")
 
       - name: Sync wiki pages
         run: |

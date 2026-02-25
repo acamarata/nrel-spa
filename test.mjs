@@ -134,7 +134,8 @@ const TROMSO_POLAR = getSpa(
   { elevation: 0, pressure: 1013, temperature: -2 },
 );
 
-test('Tromso polar: sunrise is NaN (polar night)', () => assert.ok(isNaN(TROMSO_POLAR.sunrise) || TROMSO_POLAR.sunrise < 0 || TROMSO_POLAR.sunrise > 24));
+// NREL sets sunrise/sunset to -99999 when the sun never rises.
+test('Tromso polar: sunrise < 0 (polar night sentinel)', () => assert.ok(TROMSO_POLAR.sunrise < 0));
 test('Tromso polar: zenith > 90 (sun below horizon)', () => assert.ok(TROMSO_POLAR.zenith > 90));
 
 // ─── calcSpa: formatted output ───────────────────────────────────────────────
@@ -220,11 +221,6 @@ test('defaults: no options arg', () => {
   const r = getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006);
   assert.equal(typeof r.sunrise, 'number');
 });
-test('defaults: empty angles array returns no angles key', () => {
-  const r = getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, {}, []);
-  assert.ok(!('angles' in r));
-});
-
 // ─── Cape Town (southern hemisphere, summer) ──────────────────────────────────
 
 const CAPE_TOWN = getSpa(
@@ -248,6 +244,57 @@ test('Reykjavik midsummer: sunrise ~02:55', () => close(REYKJAVIK.sunrise, 2.919
 // Sunset wraps past midnight, so the raw value > 24 or suntransit is reliable
 test('Reykjavik midsummer: solarNoon in range', () => {
   assert.ok(REYKJAVIK.solarNoon > 12 && REYKJAVIK.solarNoon < 15);
+});
+
+// ─── SPA_ZA function code (zenith/azimuth only, no RTS) ──────────────────────
+
+const ZA_ONLY = getSpa(
+  new Date('2025-06-21T00:00:00Z'),
+  40.7128, -74.006, -4,
+  { function: SPA_ZA },
+);
+
+test('SPA_ZA: zenith is a finite number', () => assert.ok(isFinite(ZA_ONLY.zenith)));
+test('SPA_ZA: azimuth is a finite number', () => assert.ok(isFinite(ZA_ONLY.azimuth)));
+test('SPA_ZA: sunrise is NaN (not computed)', () => assert.ok(isNaN(ZA_ONLY.sunrise)));
+test('SPA_ZA: solarNoon is NaN (not computed)', () => assert.ok(isNaN(ZA_ONLY.solarNoon)));
+test('SPA_ZA: sunset is NaN (not computed)', () => assert.ok(isNaN(ZA_ONLY.sunset)));
+
+test('SPA_ZA calcSpa: sunrise is N/A', () => {
+  const r = calcSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, { function: SPA_ZA });
+  assert.equal(r.sunrise, 'N/A');
+  assert.equal(r.solarNoon, 'N/A');
+  assert.equal(r.sunset, 'N/A');
+});
+
+// ─── Function code validation ─────────────────────────────────────────────────
+
+test('validation: invalid function code throws RangeError', () => {
+  assert.throws(
+    () => getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, { function: 99 }),
+    RangeError,
+  );
+});
+test('validation: angles + SPA_ZA throws RangeError', () => {
+  assert.throws(
+    () => getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, { function: SPA_ZA }, [96, 102]),
+    RangeError,
+  );
+});
+test('validation: angles + SPA_ZA_INC throws RangeError', () => {
+  assert.throws(
+    () => getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, { function: SPA_ZA_INC }, [96]),
+    RangeError,
+  );
+});
+test('validation: empty angles array returns plain SpaResult', () => {
+  const r = getSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, {}, []);
+  assert.ok(!('angles' in r));
+});
+test('validation: calcSpa with empty angles does not crash', () => {
+  const r = calcSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, {}, []);
+  assert.equal(typeof r.sunrise, 'string');
+  assert.ok(!('angles' in r));
 });
 
 // ─── Summary ─────────────────────────────────────────────────────────────────

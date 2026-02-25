@@ -1,4 +1,28 @@
 # Changelog
+<!-- markdownlint-disable MD024 -->
+
+## [2.0.1] - 2026-02-25
+
+### Fixed
+
+- **Runtime crash:** `calcSpa(... , [])` with an empty angles array no longer crashes. The empty-array guard is now consistent between `getSpa` and `calcSpa`.
+- **Silent wrong output:** `getSpa` with `options.function: SPA_ZA` or `SPA_ZA_INC` now returns `NaN` for `sunrise`, `solarNoon`, and `sunset` instead of silently returning `0`. `calcSpa` returns `"N/A"` for those fields. The zero values were misleading — those fields are never computed by non-RTS function codes.
+- `lib/spa.js` internal file header corrected from `// dist/spa.js` to `// lib/spa.js`.
+- `wiki-sync.yml`: workflow now handles first-run initialization when the GitHub Wiki repository does not yet exist. Replaces `actions/checkout@v4` for the wiki step with a `git clone || git init` pattern.
+- Removed `package-import-method=hardlink` from `.npmrc` — it is pnpm's default since v7 and caused `npm warn Unknown project config` because npm reads `.npmrc` too.
+- CI pack-check grep now uses a word-boundary pattern, preventing false matches on files with similar prefixes.
+
+### Added
+
+- **Validation:** `options.function` is now validated before the SPA calculation. Passing an invalid function code throws a descriptive `RangeError` instead of silently producing wrong results.
+- **Validation:** Passing custom `angles` with a non-RTS function code (`SPA_ZA` or `SPA_ZA_INC`) now throws `RangeError`. Custom angle calculations require `suntransit`, which is only computed by `SPA_ZA_RTS` and `SPA_ALL`.
+- TypeScript function overloads for `getSpa` and `calcSpa`: the `angles` parameter is typed as `[number, ...number[]]` (non-empty tuple), so TypeScript rejects empty arrays at compile time and narrows the return type automatically.
+- `SpaFormattedAnglesResult` interface for the formatted angles array, consistent with the existing `SpaAnglesResult` interface on the raw side.
+- CI workflows now declare explicit `permissions: contents: read` on all jobs.
+- API Reference wiki updated: inline anonymous types replaced with named `SpaAnglesResult` and `SpaFormattedAnglesResult` interfaces; new Named Types import block added; `angles` parameter type and new throws documented.
+- Architecture wiki updated to document all exported interfaces from `src/types.ts`.
+
+---
 
 ## [2.0.0] - 2026-02-25
 

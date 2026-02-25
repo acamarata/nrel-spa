@@ -15,7 +15,7 @@ Computes solar position for the given date and location. Returns raw numerical v
 | `longitude` | `number` | Yes | Observer longitude, -180 to 180. Negative = west. |
 | `timezone` | `number \| null` | No | Hours from UTC (e.g., -4 for EDT). Default: `0`. |
 | `options` | `SpaOptions \| null` | No | Atmospheric and calculation parameters. |
-| `angles` | `number[]` | No | Custom zenith angles in degrees. See [Twilight Calculations](Twilight-Calculations). |
+| `angles` | `[number, ...number[]]` | No | One or more custom zenith angles in degrees. See [Twilight Calculations](Twilight-Calculations). |
 
 **Returns:** `SpaResult`
 
@@ -29,17 +29,26 @@ interface SpaResult {
 }
 ```
 
+`sunrise`, `solarNoon`, and `sunset` are `NaN` when `options.function` is `SPA_ZA` or `SPA_ZA_INC` (those codes skip the rise/set calculation).
+
 When `angles` is provided, returns `SpaResultWithAngles`:
 
 ```typescript
 interface SpaResultWithAngles extends SpaResult {
-  angles: Array<{ sunrise: number; sunset: number }>;
+  angles: SpaAnglesResult[];
+}
+
+interface SpaAnglesResult {
+  sunrise: number; // rise time for this zenith angle (fractional hours)
+  sunset:  number; // set time for this zenith angle (fractional hours)
 }
 ```
 
 **Throws:**
 - `TypeError` if `date` is not a valid Date, or `latitude`/`longitude` are not finite numbers
 - `RangeError` if `latitude` is outside [-90, 90] or `longitude` outside [-180, 180]
+- `RangeError` if `options.function` is not 0, 1, 2, or 3
+- `RangeError` if `angles` is provided with a non-RTS function code (`SPA_ZA` or `SPA_ZA_INC`)
 - `Error` if the internal SPA calculation returns a non-zero error code
 
 ---
@@ -54,7 +63,7 @@ Same parameters as `getSpa()`. Formats `sunrise`, `solarNoon`, and `sunset` as `
 interface SpaFormattedResult {
   zenith:    number; // same as SpaResult
   azimuth:   number; // same as SpaResult
-  sunrise:   string; // "HH:MM:SS" or "N/A" during polar day/night
+  sunrise:   string; // "HH:MM:SS" or "N/A" during polar day/night, or when using SPA_ZA/SPA_ZA_INC
   solarNoon: string; // "HH:MM:SS" or "N/A"
   sunset:    string; // "HH:MM:SS" or "N/A"
 }
@@ -64,7 +73,12 @@ When `angles` is provided, returns `SpaFormattedResultWithAngles`:
 
 ```typescript
 interface SpaFormattedResultWithAngles extends SpaFormattedResult {
-  angles: Array<{ sunrise: string; sunset: string }>;
+  angles: SpaFormattedAnglesResult[];
+}
+
+interface SpaFormattedAnglesResult {
+  sunrise: string; // "HH:MM:SS" or "N/A"
+  sunset:  string; // "HH:MM:SS" or "N/A"
 }
 ```
 
@@ -116,7 +130,7 @@ import { SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from 'nrel-spa';
 | `SPA_ZA_RTS` | `2` | `zenith`, `azimuth`, `sunrise`, `solarNoon`, `sunset` |
 | `SPA_ALL` | `3` | All outputs from SPA_ZA_INC and SPA_ZA_RTS combined |
 
-The default is `SPA_ZA_RTS`. Use `SPA_ZA` for zenith/azimuth-only calculations if you do not need rise/set times; it skips the three-day calculation that rise/set requires and is slightly faster.
+The default is `SPA_ZA_RTS`. Use `SPA_ZA` for zenith/azimuth-only calculations if you do not need rise/set times; it skips the three-day calculation that rise/set requires and is slightly faster. Custom zenith `angles` require `SPA_ZA_RTS` or `SPA_ALL`.
 
 ---
 
@@ -124,6 +138,25 @@ The default is `SPA_ZA_RTS`. Use `SPA_ZA` for zenith/azimuth-only calculations i
 
 ```typescript
 type SpaFunctionCode = 0 | 1 | 2 | 3;
+```
+
+---
+
+## Named Types
+
+All interfaces and types are exported from `nrel-spa` and can be imported in TypeScript:
+
+```typescript
+import type {
+  SpaOptions,
+  SpaResult,
+  SpaFormattedResult,
+  SpaAnglesResult,
+  SpaFormattedAnglesResult,
+  SpaResultWithAngles,
+  SpaFormattedResultWithAngles,
+  SpaFunctionCode,
+} from 'nrel-spa';
 ```
 
 ---

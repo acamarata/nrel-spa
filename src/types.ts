@@ -65,7 +65,14 @@ export interface SpaResultWithAngles extends SpaResult {
   angles: SpaAnglesResult[];
 }
 
+export interface SpaFormattedAnglesResult {
+  /** Sunrise time for this custom zenith angle, formatted as HH:MM:SS. */
+  sunrise: string;
+  /** Sunset time for this custom zenith angle, formatted as HH:MM:SS. */
+  sunset: string;
+}
+
 export interface SpaFormattedResultWithAngles extends SpaFormattedResult {
   /** Custom angle results with formatted times. */
-  angles: Array<{ sunrise: string; sunset: string }>;
+  angles: SpaFormattedAnglesResult[];
 }
