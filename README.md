@@ -25,7 +25,7 @@ console.log(raw.sunrise);   // 5.417 (fractional hours)
 console.log(raw.solarNoon); // 12.965
 console.log(raw.sunset);    // 20.509
 
-// Formatted output — same parameters, HH:MM:SS strings
+// Formatted output: same parameters, HH:MM:SS strings
 const fmt = calcSpa(date, 40.7128, -74.006, -4);
 console.log(fmt.sunrise);   // "05:25:03"
 console.log(fmt.solarNoon); // "12:57:56"

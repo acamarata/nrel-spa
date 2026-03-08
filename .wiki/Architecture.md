@@ -32,12 +32,12 @@ nrel-spa/
 - Provides `formatTime()` as a standalone export
 
 **src/types.ts** exports all public TypeScript interfaces and constants:
-- `SpaOptions` — atmospheric and calculation parameters
-- `SpaResult` / `SpaFormattedResult` — base return types for `getSpa` / `calcSpa`
-- `SpaAnglesResult` / `SpaFormattedAnglesResult` — per-angle entries in the `angles` array
-- `SpaResultWithAngles` / `SpaFormattedResultWithAngles` — return types when `angles` is passed
-- `SpaFunctionCode` — union type `0 | 1 | 2 | 3`
-- `SPA_ZA`, `SPA_ZA_INC`, `SPA_ZA_RTS`, `SPA_ALL` — function code constants
+- `SpaOptions`: atmospheric and calculation parameters
+- `SpaResult` / `SpaFormattedResult`: base return types for `getSpa` / `calcSpa`
+- `SpaAnglesResult` / `SpaFormattedAnglesResult`: per-angle entries in the `angles` array
+- `SpaResultWithAngles` / `SpaFormattedResultWithAngles`: return types when `angles` is passed
+- `SpaFunctionCode`: union type `0 | 1 | 2 | 3`
+- `SPA_ZA`, `SPA_ZA_INC`, `SPA_ZA_RTS`, `SPA_ALL`: function code constants
 
 **tsup** compiles `src/index.ts` to both CJS (`dist/index.cjs`) and ESM (`dist/index.mjs`) with TypeScript declarations. The `lib/spa.js` module is kept external (not bundled) and resolved at runtime via a `createRequire` shim in the ESM build.
 

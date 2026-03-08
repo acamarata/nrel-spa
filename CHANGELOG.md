@@ -6,10 +6,10 @@
 ### Fixed
 
 - **Runtime crash:** `calcSpa(... , [])` with an empty angles array no longer crashes. The empty-array guard is now consistent between `getSpa` and `calcSpa`.
-- **Silent wrong output:** `getSpa` with `options.function: SPA_ZA` or `SPA_ZA_INC` now returns `NaN` for `sunrise`, `solarNoon`, and `sunset` instead of silently returning `0`. `calcSpa` returns `"N/A"` for those fields. The zero values were misleading — those fields are never computed by non-RTS function codes.
+- **Silent wrong output:** `getSpa` with `options.function: SPA_ZA` or `SPA_ZA_INC` now returns `NaN` for `sunrise`, `solarNoon`, and `sunset` instead of silently returning `0`. `calcSpa` returns `"N/A"` for those fields. The zero values were misleading: those fields are never computed by non-RTS function codes.
 - `lib/spa.js` internal file header corrected from `// dist/spa.js` to `// lib/spa.js`.
 - `wiki-sync.yml`: workflow now handles first-run initialization when the GitHub Wiki repository does not yet exist. Replaces `actions/checkout@v4` for the wiki step with a `git clone || git init` pattern.
-- Removed `package-import-method=hardlink` from `.npmrc` — it is pnpm's default since v7 and caused `npm warn Unknown project config` because npm reads `.npmrc` too.
+- Removed `package-import-method=hardlink` from `.npmrc`: it is pnpm's default since v7 and caused `npm warn Unknown project config` because npm reads `.npmrc` too.
 - CI pack-check grep now uses a word-boundary pattern, preventing false matches on files with similar prefixes.
 
 ### Added
