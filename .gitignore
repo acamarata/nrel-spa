@@ -26,3 +26,10 @@ dist/
 /bin/spa_cli
 /bin/*.c
 /bin/*.h
+.vscode/*
+.idea/
+.codex/
+.aider/
+.aider.chat.history.md
+.continue/
+.gemini/

@@ -1,10 +1,32 @@
-/** SPA function codes. Control which outputs are computed. */
+/**
+ * Compute topocentric zenith and azimuth angles only.
+ * Does not compute sunrise, sunset, or solar noon.
+ */
 export const SPA_ZA = 0 as const;
+
+/**
+ * Compute zenith, azimuth, and incidence angle for a tilted surface.
+ * Requires slope and azm_rotation in SpaOptions.
+ */
 export const SPA_ZA_INC = 1 as const;
+
+/**
+ * Compute sunrise, sunset, and sun transit (solar noon) in addition to
+ * zenith and azimuth. This is the default function code.
+ */
 export const SPA_ZA_RTS = 2 as const;
+
+/**
+ * Compute all outputs: zenith, azimuth, incidence angle, sunrise, sunset,
+ * and sun transit. Combines SPA_ZA_INC and SPA_ZA_RTS.
+ */
 export const SPA_ALL = 3 as const;
 
-export type SpaFunctionCode = typeof SPA_ZA | typeof SPA_ZA_INC | typeof SPA_ZA_RTS | typeof SPA_ALL;
+export type SpaFunctionCode =
+  | typeof SPA_ZA
+  | typeof SPA_ZA_INC
+  | typeof SPA_ZA_RTS
+  | typeof SPA_ALL;
 
 export interface SpaOptions {
   /** Observer elevation in meters above sea level. Default: 0. */

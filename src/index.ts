@@ -21,6 +21,9 @@ import type {
   SpaFormattedAnglesResult,
 } from './types.js';
 
+/** Degrees-to-radians conversion factor. */
+const DEG = Math.PI / 180;
+
 // The core SPA algorithm lives in lib/spa.js (the JS port of the NREL C source).
 // In ESM builds, tsup injects a createRequire-based __require shim via the banner
 // option (see tsup.config.ts). In CJS builds, require() is natively available.
@@ -76,6 +79,9 @@ function assertFiniteNumber(value: unknown, name: string): asserts value is numb
 /**
  * Format fractional hours to HH:MM:SS string.
  * Returns "N/A" for non-finite or negative values (polar night/day scenarios).
+ *
+ * @param hours - Fractional hours (e.g., 12.5 for 12:30:00)
+ * @returns Formatted time string in HH:MM:SS format, or "N/A"
  */
 export function formatTime(hours: number): string {
   if (!isFinite(hours) || hours < 0) return 'N/A';
@@ -88,9 +94,7 @@ export function formatTime(hours: number): string {
   const s = rem - m * 60;
 
   return (
-    String(h).padStart(2, '0') + ':' +
-    String(m).padStart(2, '0') + ':' +
-    String(s).padStart(2, '0')
+    String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
   );
 }
 
@@ -108,18 +112,16 @@ function adjustForCustomAngle(
   base: SpaDataInstance,
   zenithAngle: number,
 ): { sunrise: number; sunset: number } {
-  const phi = base.latitude * Math.PI / 180;
-  const delta = base.delta * Math.PI / 180;
-  const Z = zenithAngle * Math.PI / 180;
-  const cosH0 =
-    (Math.cos(Z) - Math.sin(phi) * Math.sin(delta)) /
-    (Math.cos(phi) * Math.cos(delta));
+  const phi = base.latitude * DEG;
+  const delta = base.delta * DEG;
+  const Z = zenithAngle * DEG;
+  const cosH0 = (Math.cos(Z) - Math.sin(phi) * Math.sin(delta)) / (Math.cos(phi) * Math.cos(delta));
 
   if (cosH0 < -1 || cosH0 > 1) {
     return { sunrise: NaN, sunset: NaN };
   }
 
-  const H0h = (Math.acos(cosH0) * 180 / Math.PI) / 15;
+  const H0h = Math.acos(cosH0) / DEG / 15;
   return {
     sunrise: base.suntransit - H0h,
     sunset: base.suntransit + H0h,
@@ -135,6 +137,8 @@ function adjustForCustomAngle(
  * @param timezone - Hours from UTC (e.g., -4 for EDT). Default: 0
  * @param options - Optional atmospheric and calculation parameters
  * @returns Solar position result with raw numerical values
+ * @throws {TypeError} If date, latitude, longitude, timezone, or options numeric fields are not finite numbers
+ * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
  */
 export function getSpa(
   date: Date,
@@ -184,13 +188,48 @@ export function getSpa(
   }
 
   const tz = timezone ?? 0;
+  assertFiniteNumber(tz, 'timezone');
+  if (tz < -18 || tz > 18) {
+    throw new RangeError(`SPA: timezone must be between -18 and 18, got ${tz}`);
+  }
+
   const opts = options ?? {};
+
+  const optNumericFields = [
+    'elevation',
+    'pressure',
+    'temperature',
+    'delta_t',
+    'slope',
+    'azm_rotation',
+    'atmos_refract',
+  ] as const;
+  for (const field of optNumericFields) {
+    if (opts[field] !== undefined) {
+      assertFiniteNumber(opts[field], `options.${field}`);
+    }
+  }
 
   const fnCode = opts.function ?? SPA_ZA_RTS;
   if (fnCode !== 0 && fnCode !== 1 && fnCode !== 2 && fnCode !== 3) {
     throw new RangeError(
       `SPA: options.function must be 0 (SPA_ZA), 1 (SPA_ZA_INC), 2 (SPA_ZA_RTS), or 3 (SPA_ALL), got ${fnCode}`,
     );
+  }
+
+  // Validate custom angle values before checking function code compatibility.
+  if (angles && angles.length > 0) {
+    for (let i = 0; i < angles.length; i++) {
+      const a = angles[i];
+      if (typeof a !== 'number' || !isFinite(a)) {
+        throw new TypeError(
+          `SPA: angles[${i}] must be a finite number, got ${typeof a === 'number' ? a : typeof a}`,
+        );
+      }
+      if (a < 0 || a > 180) {
+        throw new RangeError(`SPA: angles[${i}] must be between 0 and 180, got ${a}`);
+      }
+    }
   }
 
   // Custom angle calculations depend on suntransit, which requires an RTS function code.
@@ -252,6 +291,9 @@ export function getSpa(
 /**
  * Same as getSpa(), but formats sunrise, solarNoon, and sunset as HH:MM:SS strings.
  * Returns "N/A" for time fields during polar day or polar night.
+ *
+ * @throws {TypeError} If date, latitude, longitude, timezone, or options numeric fields are not finite numbers
+ * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
  */
 export function calcSpa(
   date: Date,
@@ -263,6 +305,9 @@ export function calcSpa(
 /**
  * Same as getSpa() with custom angles, but formats all time values as HH:MM:SS strings.
  * Returns "N/A" for time fields during polar day or polar night.
+ *
+ * @throws {TypeError} If date, latitude, longitude, timezone, or options numeric fields are not finite numbers
+ * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
  */
 export function calcSpa(
   date: Date,
@@ -281,17 +326,26 @@ export function calcSpa(
   angles?: number[],
 ): SpaFormattedResult | SpaFormattedResultWithAngles {
   if (angles !== undefined && angles.length > 0) {
-    const raw = getSpa(date, latitude, longitude, timezone, options, angles as [number, ...number[]]);
+    const raw = getSpa(
+      date,
+      latitude,
+      longitude,
+      timezone,
+      options,
+      angles as [number, ...number[]],
+    );
     return {
       zenith: raw.zenith,
       azimuth: raw.azimuth,
       sunrise: formatTime(raw.sunrise),
       solarNoon: formatTime(raw.solarNoon),
       sunset: formatTime(raw.sunset),
-      angles: raw.angles.map((a): SpaFormattedAnglesResult => ({
-        sunrise: formatTime(a.sunrise),
-        sunset: formatTime(a.sunset),
-      })),
+      angles: raw.angles.map(
+        (a): SpaFormattedAnglesResult => ({
+          sunrise: formatTime(a.sunrise),
+          sunset: formatTime(a.sunset),
+        }),
+      ),
     };
   }
 
