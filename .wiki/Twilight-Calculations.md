@@ -4,12 +4,12 @@ Standard sunrise and sunset use a zenith angle of approximately 90.833 degrees (
 
 ## Standard Twilight Definitions
 
-| Type | Zenith Angle | Description |
-| --- | --- | --- |
-| Sunrise / Sunset | ~90.833 | Center of sun at horizon (accounting for refraction) |
-| Civil twilight | 96 | Sufficient light for outdoor activities without artificial light |
-| Nautical twilight | 102 | Horizon visible; used for celestial navigation |
-| Astronomical twilight | 108 | Sky fully dark enough for astronomical observation |
+| Type                  | Zenith Angle | Description                                                      |
+| --------------------- | ------------ | ---------------------------------------------------------------- |
+| Sunrise / Sunset      | ~90.833      | Center of sun at horizon (accounting for refraction)             |
+| Civil twilight        | 96           | Sufficient light for outdoor activities without artificial light |
+| Nautical twilight     | 102          | Horizon visible; used for celestial navigation                   |
+| Astronomical twilight | 108          | Sky fully dark enough for astronomical observation               |
 
 ## Usage
 
@@ -20,14 +20,14 @@ import { calcSpa } from 'nrel-spa';
 
 const result = calcSpa(
   new Date('2025-06-21T00:00:00Z'),
-  40.7128,  // New York
+  40.7128, // New York
   -74.006,
-  -4,       // EDT
-  {},       // default options
+  -4, // EDT
+  {}, // default options
   [96, 102, 108], // civil, nautical, astronomical
 );
 
-console.log(result.sunrise);          // "05:25:03" (standard)
+console.log(result.sunrise); // "05:25:03" (standard)
 console.log(result.angles[0].sunrise); // civil twilight begin
 console.log(result.angles[1].sunrise); // nautical twilight begin
 console.log(result.angles[2].sunrise); // astronomical twilight begin
@@ -35,16 +35,16 @@ console.log(result.angles[2].sunrise); // astronomical twilight begin
 
 Expected output for New York, June 21, 2025:
 
-| Event | Time |
-| --- | --- |
+| Event                       | Time   |
+| --------------------------- | ------ |
 | Astronomical twilight begin | ~03:57 |
-| Nautical twilight begin | ~04:28 |
-| Civil twilight begin | ~04:53 |
-| Sunrise | ~05:25 |
-| Sunset | ~20:30 |
-| Civil twilight end | ~21:02 |
-| Nautical twilight end | ~21:27 |
-| Astronomical twilight end | ~21:58 |
+| Nautical twilight begin     | ~04:28 |
+| Civil twilight begin        | ~04:53 |
+| Sunrise                     | ~05:25 |
+| Sunset                      | ~20:30 |
+| Civil twilight end          | ~21:02 |
+| Nautical twilight end       | ~21:27 |
+| Astronomical twilight end   | ~21:58 |
 
 ## How It Works
 
@@ -70,10 +70,7 @@ At high latitudes during summer (midnight sun), the sun may not set even at the 
 ```javascript
 import { getSpa } from 'nrel-spa';
 
-const r = getSpa(
-  new Date('2025-06-21T00:00:00Z'),
-  71, 25, 2, {}, [96],
-);
+const r = getSpa(new Date('2025-06-21T00:00:00Z'), 71, 25, 2, {}, [96]);
 
 if (r.angles && !isFinite(r.angles[0].sunrise)) {
   console.log('No civil twilight at this latitude/date');

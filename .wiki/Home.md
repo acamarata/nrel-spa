@@ -23,14 +23,14 @@ import { calcSpa } from 'nrel-spa';
 
 const result = calcSpa(
   new Date('2025-06-21T00:00:00Z'),
-  40.7128,  // New York latitude
-  -74.006,  // New York longitude
-  -4,       // EDT (UTC-4)
+  40.7128, // New York latitude
+  -74.006, // New York longitude
+  -4, // EDT (UTC-4)
 );
 
-console.log(result.sunrise);   // "05:25:03"
+console.log(result.sunrise); // "05:25:03"
 console.log(result.solarNoon); // "12:57:56"
-console.log(result.sunset);    // "20:30:35"
+console.log(result.sunset); // "20:30:35"
 ```
 
 ## Key Facts

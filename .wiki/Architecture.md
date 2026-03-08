@@ -23,6 +23,7 @@ nrel-spa/
 **lib/spa.js** is the core mathematical engine. It is a direct JavaScript port of the NREL C source (`spa.c`), preserving function names, variable names, and the algorithm structure. The file is checked into git and shipped in the npm package.
 
 **src/index.ts** is a thin TypeScript wrapper. It:
+
 - Loads `lib/spa.js` at runtime
 - Validates input parameters, throwing `TypeError` or `RangeError` for invalid values
 - Validates `options.function` and throws `RangeError` for out-of-range codes
@@ -32,6 +33,7 @@ nrel-spa/
 - Provides `formatTime()` as a standalone export
 
 **src/types.ts** exports all public TypeScript interfaces and constants:
+
 - `SpaOptions`: atmospheric and calculation parameters
 - `SpaResult` / `SpaFormattedResult`: base return types for `getSpa` / `calcSpa`
 - `SpaAnglesResult` / `SpaFormattedAnglesResult`: per-angle entries in the `angles` array
