@@ -3,7 +3,7 @@ name: Sync Wiki
 on:
   push:
     branches: [main]
-    paths: ['.wiki/**']
+    paths: ['.github/wiki/**']
 
 permissions:
   contents: write
@@ -25,7 +25,7 @@ jobs:
 
       - name: Sync wiki pages
         run: |
-          cp .wiki/*.md .wiki-remote/
+          cp .github/wiki/*.md .wiki-remote/
           cd .wiki-remote
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
