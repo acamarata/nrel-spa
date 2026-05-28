@@ -26,5 +26,5 @@ export default defineConfig({
   // The core SPA algorithm lives in lib/spa.js (the JS port of the NREL C source).
   // It is checked into git and ships with the package. We load it at runtime so it
   // is kept external (not bundled) and resolves via the createRequire shim in ESM.
-  external: ['../lib/spa.js'],
+  external: ['../lib/spa.cjs'],
 });

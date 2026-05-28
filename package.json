@@ -9,15 +9,11 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.cjs"
-      }
-    }
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "sideEffects": false,
   "files": [
@@ -38,7 +34,8 @@
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
-    "prepublishOnly": "tsup"
+    "prepublishOnly": "tsup",
+    "coverage": "c8 --reporter=lcov --reporter=text node --test"
   },
   "keywords": [
     "solar",
@@ -78,5 +75,7 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
-  }
+  },
+  "type": "module",
+  "packageManager": "pnpm@10.11.1"
 }

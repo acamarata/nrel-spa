@@ -29,7 +29,7 @@ const DEG = Math.PI / 180;
 // option (see tsup.config.ts). In CJS builds, require() is natively available.
 declare const __require: NodeRequire;
 const _load = typeof __require === 'function' ? __require : require;
-const spa = _load('../lib/spa.js') as {
+const spa = _load('../lib/spa.cjs') as {
   SpaData: new () => SpaDataInstance;
   SPA_ZA_RTS: number;
   spa_calculate: (data: SpaDataInstance) => number;
