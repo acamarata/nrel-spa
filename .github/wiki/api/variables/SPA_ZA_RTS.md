@@ -8,7 +8,7 @@
 
 > `const` **SPA\_ZA\_RTS**: `2`
 
-Defined in: [types.ts:17](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L17)
+Defined in: [types.ts:17](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L17)
 
 Compute sunrise, sunset, and sun transit (solar noon) in addition to
 zenith and azimuth. This is the default function code.

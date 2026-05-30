@@ -6,7 +6,7 @@
 
 # Interface: SpaOptions
 
-Defined in: [types.ts:31](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L31)
+Defined in: [types.ts:31](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L31)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [types.ts:31](https://github.com/acamarata/nrel-spa/blob/dea28b92623
 
 > `optional` **atmos\_refract?**: `number`
 
-Defined in: [types.ts:47](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L47)
+Defined in: [types.ts:47](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L47)
 
 Atmospheric refraction at sunrise/sunset in degrees. Default: 0.5667.
 
@@ -24,7 +24,7 @@ Atmospheric refraction at sunrise/sunset in degrees. Default: 0.5667.
 
 > `optional` **azm\_rotation?**: `number`
 
-Defined in: [types.ts:45](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L45)
+Defined in: [types.ts:45](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L45)
 
 Surface azimuth rotation in degrees from south. Default: 0.
 
@@ -34,7 +34,7 @@ Surface azimuth rotation in degrees from south. Default: 0.
 
 > `optional` **delta\_t?**: `number`
 
-Defined in: [types.ts:41](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L41)
+Defined in: [types.ts:41](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L41)
 
 TT-UTC difference in seconds. Default: 67.
 
@@ -44,7 +44,7 @@ TT-UTC difference in seconds. Default: 67.
 
 > `optional` **delta\_ut1?**: `number`
 
-Defined in: [types.ts:39](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L39)
+Defined in: [types.ts:39](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L39)
 
 UT1-UTC correction in seconds. Default: 0.
 
@@ -54,7 +54,7 @@ UT1-UTC correction in seconds. Default: 0.
 
 > `optional` **elevation?**: `number`
 
-Defined in: [types.ts:33](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L33)
+Defined in: [types.ts:33](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L33)
 
 Observer elevation in meters above sea level. Default: 0.
 
@@ -64,7 +64,7 @@ Observer elevation in meters above sea level. Default: 0.
 
 > `optional` **function?**: [`SpaFunctionCode`](../type-aliases/SpaFunctionCode.md)
 
-Defined in: [types.ts:49](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L49)
+Defined in: [types.ts:49](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L49)
 
 SPA function code. Default: SPA_ZA_RTS (2).
 
@@ -74,7 +74,7 @@ SPA function code. Default: SPA_ZA_RTS (2).
 
 > `optional` **pressure?**: `number`
 
-Defined in: [types.ts:35](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L35)
+Defined in: [types.ts:35](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L35)
 
 Atmospheric pressure in millibars. Default: 1013.
 
@@ -84,7 +84,7 @@ Atmospheric pressure in millibars. Default: 1013.
 
 > `optional` **slope?**: `number`
 
-Defined in: [types.ts:43](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L43)
+Defined in: [types.ts:43](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L43)
 
 Surface slope in degrees from horizontal. Default: 0.
 
@@ -94,6 +94,6 @@ Surface slope in degrees from horizontal. Default: 0.
 
 > `optional` **temperature?**: `number`
 
-Defined in: [types.ts:37](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L37)
+Defined in: [types.ts:37](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L37)
 
 Temperature in degrees Celsius. Default: 15.

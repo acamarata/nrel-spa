@@ -8,7 +8,7 @@
 
 > **formatTime**(`hours`): `string`
 
-Defined in: [index.ts:87](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/index.ts#L87)
+Defined in: [index.ts:87](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/index.ts#L87)
 
 Format fractional hours to HH:MM:SS string.
 Returns "N/A" for non-finite or negative values (polar night/day scenarios).

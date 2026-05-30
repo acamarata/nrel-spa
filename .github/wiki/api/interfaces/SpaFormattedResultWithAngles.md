@@ -6,7 +6,7 @@
 
 # Interface: SpaFormattedResultWithAngles
 
-Defined in: [types.ts:97](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L97)
+Defined in: [types.ts:97](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L97)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [types.ts:97](https://github.com/acamarata/nrel-spa/blob/dea28b92623
 
 > **angles**: [`SpaFormattedAnglesResult`](SpaFormattedAnglesResult.md)[]
 
-Defined in: [types.ts:99](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L99)
+Defined in: [types.ts:99](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L99)
 
 Custom angle results with formatted times.
 
@@ -28,7 +28,7 @@ Custom angle results with formatted times.
 
 > **azimuth**: `number`
 
-Defined in: [types.ts:69](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L69)
+Defined in: [types.ts:69](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L69)
 
 Topocentric azimuth angle, eastward from north (navigational convention), in degrees.
 
@@ -42,7 +42,7 @@ Topocentric azimuth angle, eastward from north (navigational convention), in deg
 
 > **solarNoon**: `string`
 
-Defined in: [types.ts:73](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L73)
+Defined in: [types.ts:73](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L73)
 
 Local sun transit time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -56,7 +56,7 @@ Local sun transit time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **sunrise**: `string`
 
-Defined in: [types.ts:71](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L71)
+Defined in: [types.ts:71](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L71)
 
 Local sunrise time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -70,7 +70,7 @@ Local sunrise time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **sunset**: `string`
 
-Defined in: [types.ts:75](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L75)
+Defined in: [types.ts:75](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L75)
 
 Local sunset time as HH:MM:SS string. "N/A" during polar day/night.
 
@@ -84,7 +84,7 @@ Local sunset time as HH:MM:SS string. "N/A" during polar day/night.
 
 > **zenith**: `number`
 
-Defined in: [types.ts:67](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L67)
+Defined in: [types.ts:67](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L67)
 
 Topocentric zenith angle in degrees.
 

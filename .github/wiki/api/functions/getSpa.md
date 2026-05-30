@@ -10,7 +10,7 @@
 
 > **getSpa**(`date`, `latitude`, `longitude`, `timezone?`, `options?`): [`SpaResult`](../interfaces/SpaResult.md)
 
-Defined in: [index.ts:145](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/index.ts#L145)
+Defined in: [index.ts:145](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/index.ts#L145)
 
 Compute solar position for the given parameters.
 
@@ -68,7 +68,7 @@ If latitude, longitude, timezone, function code, or angle values are out of rang
 
 > **getSpa**(`date`, `latitude`, `longitude`, `timezone`, `options`, `angles`): [`SpaResultWithAngles`](../interfaces/SpaResultWithAngles.md)
 
-Defined in: [index.ts:163](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/index.ts#L163)
+Defined in: [index.ts:163](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/index.ts#L163)
 
 Compute solar position and resolve custom zenith angles (e.g., twilight).
 

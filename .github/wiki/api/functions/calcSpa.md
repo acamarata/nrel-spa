@@ -10,7 +10,7 @@
 
 > **calcSpa**(`date`, `latitude`, `longitude`, `timezone?`, `options?`): [`SpaFormattedResult`](../interfaces/SpaFormattedResult.md)
 
-Defined in: [index.ts:307](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/index.ts#L307)
+Defined in: [index.ts:307](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/index.ts#L307)
 
 Same as getSpa(), but formats sunrise, solarNoon, and sunset as HH:MM:SS strings.
 Returns "N/A" for time fields during polar day or polar night.
@@ -69,7 +69,7 @@ If latitude, longitude, timezone, function code, or angle values are out of rang
 
 > **calcSpa**(`date`, `latitude`, `longitude`, `timezone`, `options`, `angles`): [`SpaFormattedResultWithAngles`](../interfaces/SpaFormattedResultWithAngles.md)
 
-Defined in: [index.ts:321](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/index.ts#L321)
+Defined in: [index.ts:321](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/index.ts#L321)
 
 Same as getSpa() with custom angles, but formats all time values as HH:MM:SS strings.
 Returns "N/A" for time fields during polar day or polar night.

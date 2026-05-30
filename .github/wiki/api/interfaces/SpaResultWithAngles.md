@@ -6,7 +6,7 @@
 
 # Interface: SpaResultWithAngles
 
-Defined in: [types.ts:85](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L85)
+Defined in: [types.ts:85](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L85)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [types.ts:85](https://github.com/acamarata/nrel-spa/blob/dea28b92623
 
 > **angles**: [`SpaAnglesResult`](SpaAnglesResult.md)[]
 
-Defined in: [types.ts:87](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L87)
+Defined in: [types.ts:87](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L87)
 
 Custom angle results, one per angle in the input array.
 
@@ -28,7 +28,7 @@ Custom angle results, one per angle in the input array.
 
 > **azimuth**: `number`
 
-Defined in: [types.ts:56](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L56)
+Defined in: [types.ts:56](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L56)
 
 Topocentric azimuth angle, eastward from north (navigational convention), in degrees.
 
@@ -42,7 +42,7 @@ Topocentric azimuth angle, eastward from north (navigational convention), in deg
 
 > **solarNoon**: `number`
 
-Defined in: [types.ts:60](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L60)
+Defined in: [types.ts:60](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L60)
 
 Local sun transit time (solar noon) as fractional hours.
 
@@ -56,7 +56,7 @@ Local sun transit time (solar noon) as fractional hours.
 
 > **sunrise**: `number`
 
-Defined in: [types.ts:58](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L58)
+Defined in: [types.ts:58](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L58)
 
 Local sunrise time as fractional hours.
 
@@ -70,7 +70,7 @@ Local sunrise time as fractional hours.
 
 > **sunset**: `number`
 
-Defined in: [types.ts:62](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L62)
+Defined in: [types.ts:62](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L62)
 
 Local sunset time as fractional hours.
 
@@ -84,7 +84,7 @@ Local sunset time as fractional hours.
 
 > **zenith**: `number`
 
-Defined in: [types.ts:54](https://github.com/acamarata/nrel-spa/blob/dea28b9262311319e14e8b9f29cb072ae4aea635/src/types.ts#L54)
+Defined in: [types.ts:54](https://github.com/acamarata/nrel-spa/blob/b52802f94b8c28a03228118f51c17ce21d4c14b3/src/types.ts#L54)
 
 Topocentric zenith angle in degrees.
 
