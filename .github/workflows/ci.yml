@@ -16,14 +16,14 @@ jobs:
         node-version: [20, 22, 24]
     steps:
       - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
 
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
 
-      - name: Enable corepack
-        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
 
@@ -42,14 +42,14 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
 
-      - name: Enable corepack
-        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
@@ -59,12 +59,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
-      - name: Enable corepack
-        run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
       - run: pnpm run format:check
@@ -75,14 +75,14 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
 
-      - name: Enable corepack
-        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
