@@ -2,6 +2,17 @@
 
 **[Home](Home)**
 
+**Guides**
+- [Quick Start](guides/quickstart)
+- [Advanced Usage](guides/advanced)
+
+**API**
+- [getSpa](api/getSpa)
+- [calcSpa](api/calcSpa)
+- [formatTime](api/formatTime)
+- [SpaOptions](api/SpaOptions)
+- [SpaFunctionCode](api/SpaFunctionCode)
+
 **Reference**
 - [API Reference](API-Reference)
 - [Architecture](Architecture)
@@ -10,6 +21,11 @@
 **Deep Dives**
 - [Implementation Comparison](Implementation-Comparison)
 - [Twilight Calculations](Twilight-Calculations)
+- [Benchmarks](benchmarks/index)
+
+**Examples**
+- [Solar Position Logger](examples/solar-position)
+- [Twilight Times](examples/twilight-times)
 
 **Contributing**
 - [Contributing](Contributing)

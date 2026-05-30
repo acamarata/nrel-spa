@@ -82,6 +82,7 @@ function assertFiniteNumber(value: unknown, name: string): asserts value is numb
  *
  * @param hours - Fractional hours (e.g., 12.5 for 12:30:00)
  * @returns Formatted time string in HH:MM:SS format, or "N/A"
+ * @see {@link https://github.com/acamarata/nrel-spa/wiki/api/formatTime Wiki: formatTime}
  */
 export function formatTime(hours: number): string {
   if (!isFinite(hours) || hours < 0) return 'N/A';
@@ -139,6 +140,7 @@ function adjustForCustomAngle(
  * @returns Solar position result with raw numerical values
  * @throws {TypeError} If date, latitude, longitude, timezone, or options numeric fields are not finite numbers
  * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
+ * @see {@link https://github.com/acamarata/nrel-spa/wiki/api/getSpa Wiki: getSpa}
  */
 export function getSpa(
   date: Date,
@@ -292,8 +294,15 @@ export function getSpa(
  * Same as getSpa(), but formats sunrise, solarNoon, and sunset as HH:MM:SS strings.
  * Returns "N/A" for time fields during polar day or polar night.
  *
+ * @param date - JavaScript Date object (uses UTC components)
+ * @param latitude - Observer latitude in degrees (-90 to 90, negative = south)
+ * @param longitude - Observer longitude in degrees (-180 to 180, negative = west)
+ * @param timezone - Hours from UTC (e.g., -4 for EDT). Default: 0
+ * @param options - Optional atmospheric and calculation parameters
+ * @returns Formatted solar position result with HH:MM:SS time strings
  * @throws {TypeError} If date, latitude, longitude, timezone, or options numeric fields are not finite numbers
  * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
+ * @see {@link https://github.com/acamarata/nrel-spa/wiki/api/calcSpa Wiki: calcSpa}
  */
 export function calcSpa(
   date: Date,

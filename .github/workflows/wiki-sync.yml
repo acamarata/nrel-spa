@@ -25,7 +25,15 @@ jobs:
 
       - name: Sync wiki pages
         run: |
+          # Copy root wiki pages
           cp .github/wiki/*.md .wiki-remote/
+          # Copy subdirectory pages (api/, benchmarks/, guides/, examples/)
+          for dir in api benchmarks guides examples; do
+            if [ -d ".github/wiki/$dir" ]; then
+              mkdir -p ".wiki-remote/$dir"
+              cp ".github/wiki/$dir"/*.md ".wiki-remote/$dir/" 2>/dev/null || true
+            fi
+          done
           cd .wiki-remote
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

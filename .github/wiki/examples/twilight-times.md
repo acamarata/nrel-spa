@@ -11,12 +11,12 @@ const TZ = -7;        // PDT
 
 const date = new Date('2025-09-15T12:00:00-07:00');
 
-const r = getSpa(date, LAT, LON, TZ, {}, [90.833, 96, 102, 108]);
+const r = getSpa(date, LAT, LON, TZ, null, [90.833, 96, 102, 108]);
 
 const labels = ['Sunrise/Sunset', 'Civil', 'Nautical', 'Astronomical'];
 
-for (let i = 0; i < r.customAngles.length; i++) {
-  const ca = r.customAngles[i];
+for (let i = 0; i < r.angles.length; i++) {
+  const ca = r.angles[i];
   const rise = formatTime(ca.sunrise);
   const set  = formatTime(ca.sunset);
   console.log(`${labels[i].padEnd(16)} dawn: ${rise}  dusk: ${set}`);

@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/nrel-spa.svg)](https://www.npmjs.com/package/nrel-spa)
 [![CI](https://github.com/acamarata/nrel-spa/actions/workflows/ci.yml/badge.svg)](https://github.com/acamarata/nrel-spa/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/nrel-spa.svg)](./LICENSE)
+[![wiki](https://img.shields.io/badge/docs-wiki-blue)](https://github.com/acamarata/nrel-spa/wiki)
 
 Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Computes solar zenith angle, azimuth, sunrise, sunset, and solar noon for any location and date. Zero dependencies, synchronous. Validated to produce identical results to the original NREL C reference implementation.
 
