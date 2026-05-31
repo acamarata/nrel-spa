@@ -7,11 +7,11 @@ export type {
   SpaResultWithAngles,
   SpaFormattedResultWithAngles,
   SpaFunctionCode,
-} from './types.js';
+} from "./types.js";
 
-export { SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from './types.js';
+export { SPA_ZA, SPA_ZA_INC, SPA_ZA_RTS, SPA_ALL } from "./types.js";
 
-import { SPA_ZA_RTS } from './types.js';
+import { SPA_ZA_RTS } from "./types.js";
 import type {
   SpaOptions,
   SpaResult,
@@ -19,7 +19,7 @@ import type {
   SpaResultWithAngles,
   SpaFormattedResultWithAngles,
   SpaFormattedAnglesResult,
-} from './types.js';
+} from "./types.js";
 
 /** Degrees-to-radians conversion factor. */
 const DEG = Math.PI / 180;
@@ -28,8 +28,8 @@ const DEG = Math.PI / 180;
 // In ESM builds, tsup injects a createRequire-based __require shim via the banner
 // option (see tsup.config.ts). In CJS builds, require() is natively available.
 declare const __require: NodeRequire;
-const _load = typeof __require === 'function' ? __require : require;
-const spa = _load('../lib/spa.cjs') as {
+const _load = typeof __require === "function" ? __require : require;
+const spa = _load("../lib/spa.cjs") as {
   SpaData: new () => SpaDataInstance;
   SPA_ZA_RTS: number;
   spa_calculate: (data: SpaDataInstance) => number;
@@ -69,9 +69,9 @@ interface SpaDataInstance {
  * @internal
  */
 function assertFiniteNumber(value: unknown, name: string): asserts value is number {
-  if (typeof value !== 'number' || !isFinite(value)) {
+  if (typeof value !== "number" || !isFinite(value)) {
     throw new TypeError(
-      `SPA: ${name} must be a finite number, got ${typeof value === 'number' ? value : typeof value}`,
+      `SPA: ${name} must be a finite number, got ${typeof value === "number" ? value : typeof value}`,
     );
   }
 }
@@ -85,7 +85,7 @@ function assertFiniteNumber(value: unknown, name: string): asserts value is numb
  * @see {@link https://github.com/acamarata/nrel-spa/wiki/api/formatTime Wiki: formatTime}
  */
 export function formatTime(hours: number): string {
-  if (!isFinite(hours) || hours < 0) return 'N/A';
+  if (!isFinite(hours) || hours < 0) return "N/A";
 
   const totalSec = Math.round(hours * 3600);
   // Wrap at 24h: values near midnight can round to 24:00:00
@@ -95,7 +95,7 @@ export function formatTime(hours: number): string {
   const s = rem - m * 60;
 
   return (
-    String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+    String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0")
   );
 }
 
@@ -177,10 +177,10 @@ export function getSpa(
   angles?: number[],
 ): SpaResult | SpaResultWithAngles {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new TypeError('SPA: date must be a valid Date object');
+    throw new TypeError("SPA: date must be a valid Date object");
   }
-  assertFiniteNumber(latitude, 'latitude');
-  assertFiniteNumber(longitude, 'longitude');
+  assertFiniteNumber(latitude, "latitude");
+  assertFiniteNumber(longitude, "longitude");
 
   if (latitude < -90 || latitude > 90) {
     throw new RangeError(`SPA: latitude must be between -90 and 90, got ${latitude}`);
@@ -190,7 +190,7 @@ export function getSpa(
   }
 
   const tz = timezone ?? 0;
-  assertFiniteNumber(tz, 'timezone');
+  assertFiniteNumber(tz, "timezone");
   if (tz < -18 || tz > 18) {
     throw new RangeError(`SPA: timezone must be between -18 and 18, got ${tz}`);
   }
@@ -198,13 +198,13 @@ export function getSpa(
   const opts = options ?? {};
 
   const optNumericFields = [
-    'elevation',
-    'pressure',
-    'temperature',
-    'delta_t',
-    'slope',
-    'azm_rotation',
-    'atmos_refract',
+    "elevation",
+    "pressure",
+    "temperature",
+    "delta_t",
+    "slope",
+    "azm_rotation",
+    "atmos_refract",
   ] as const;
   for (const field of optNumericFields) {
     if (opts[field] !== undefined) {
@@ -223,9 +223,9 @@ export function getSpa(
   if (angles && angles.length > 0) {
     for (let i = 0; i < angles.length; i++) {
       const a = angles[i];
-      if (typeof a !== 'number' || !isFinite(a)) {
+      if (typeof a !== "number" || !isFinite(a)) {
         throw new TypeError(
-          `SPA: angles[${i}] must be a finite number, got ${typeof a === 'number' ? a : typeof a}`,
+          `SPA: angles[${i}] must be a finite number, got ${typeof a === "number" ? a : typeof a}`,
         );
       }
       if (a < 0 || a > 180) {
@@ -237,7 +237,7 @@ export function getSpa(
   // Custom angle calculations depend on suntransit, which requires an RTS function code.
   if (angles && angles.length > 0 && fnCode !== 2 && fnCode !== 3) {
     throw new RangeError(
-      'SPA: custom zenith angle calculations require an RTS function code (SPA_ZA_RTS or SPA_ALL)',
+      "SPA: custom zenith angle calculations require an RTS function code (SPA_ZA_RTS or SPA_ALL)",
     );
   }
 
