@@ -1,0 +1,165 @@
+# Forgejo CI mirror — git.ariccamarata.com
+# Mirrors .github/workflows/ci.yml for the self-hosted Forgejo Actions runner.
+# Keep in sync with the GitHub workflow; only addition is the nSentry failure step.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: pnpm run build
+
+      - name: Run tests (ESM)
+        run: node --test test.mjs
+
+      - name: Run tests (CJS)
+        run: node --test test-cjs.cjs
+
+      - name: Report failure to nSentry
+        if: failure()
+        run: |
+          # nself sentry ci enable <repo> must be run on the CamClaw server first.
+          # Once registered, the runner's nself-sentry-sync hook delivers this report
+          # to ~/Sites/acamarata/.claude/inbox via root@sentry-errors.ariccamarata.com.
+          echo "CI_FAILURE repo=${{ github.repository }} job=${{ github.job }} run=${{ github.run_id }}" >&2
+
+  typecheck:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+
+      - name: Report failure to nSentry
+        if: failure()
+        run: |
+          # nself sentry ci enable <repo> must be run on the CamClaw server first.
+          # Once registered, the runner's nself-sentry-sync hook delivers this report
+          # to ~/Sites/acamarata/.claude/inbox via root@sentry-errors.ariccamarata.com.
+          echo "CI_FAILURE repo=${{ github.repository }} job=${{ github.job }} run=${{ github.run_id }}" >&2
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - name: Report failure to nSentry
+        if: failure()
+        run: |
+          # nself sentry ci enable <repo> must be run on the CamClaw server first.
+          # Once registered, the runner's nself-sentry-sync hook delivers this report
+          # to ~/Sites/acamarata/.claude/inbox via root@sentry-errors.ariccamarata.com.
+          echo "CI_FAILURE repo=${{ github.repository }} job=${{ github.job }} run=${{ github.run_id }}" >&2
+
+  pack-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+      - name: Verify package contents
+        run: |
+          npm pack --dry-run 2>&1 | tee pack-output.txt
+          for f in dist/index.cjs dist/index.mjs dist/index.d.ts dist/index.d.mts lib/spa.js README.md CHANGELOG.md LICENSE; do
+            grep -qE "(^|[[:space:]])${f}([[:space:]]|$)" pack-output.txt || { echo "MISSING: $f"; exit 1; }
+          done
+          echo "All expected files present in package"
+
+      - name: Report failure to nSentry
+        if: failure()
+        run: |
+          # nself sentry ci enable <repo> must be run on the CamClaw server first.
+          # Once registered, the runner's nself-sentry-sync hook delivers this report
+          # to ~/Sites/acamarata/.claude/inbox via root@sentry-errors.ariccamarata.com.
+          echo "CI_FAILURE repo=${{ github.repository }} job=${{ github.job }} run=${{ github.run_id }}" >&2
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Coverage
+        run: pnpm run coverage
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+      - name: Report failure to nSentry
+        if: failure()
+        run: |
+          # nself sentry ci enable <repo> must be run on the CamClaw server first.
+          # Once registered, the runner's nself-sentry-sync hook delivers this report
+          # to ~/Sites/acamarata/.claude/inbox via root@sentry-errors.ariccamarata.com.
+          echo "CI_FAILURE repo=${{ github.repository }} job=${{ github.job }} run=${{ github.run_id }}" >&2
