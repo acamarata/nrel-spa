@@ -371,10 +371,8 @@ export function calcSpa(
 // ── Opt-in anonymous telemetry ────────────────────────────────────────────────
 // Off by default. Enable: ACAMARATA_TELEMETRY=1
 // What is sent + how to disable: https://github.com/acamarata/telemetry/blob/main/TELEMETRY.md
-import('@acamarata/telemetry')
-  .then(({ track }) =>
-    track('load', { package: 'nrel-spa', version: '2.0.2' }),
-  )
+import("@acamarata/telemetry")
+  .then(({ track }) => track("load", { package: "nrel-spa", version: "2.0.2" }))
   .catch(() => {
     // telemetry not installed or disabled — that's fine
   });
