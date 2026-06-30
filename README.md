@@ -66,3 +66,7 @@ The core algorithm is a JavaScript port of the NREL SPA by Ibrahim Reda and Afsh
 ## License
 
 MIT (TypeScript wrapper and build tooling). The core algorithm in `lib/spa.js` is a port of NREL's SPA C source, subject to its own terms. See [LICENSE](./LICENSE).
+
+## Telemetry
+
+This package supports optional, anonymous usage telemetry via [`@acamarata/telemetry`](https://github.com/acamarata/telemetry). It is **off by default**. See [TELEMETRY.md](https://github.com/acamarata/telemetry/blob/main/TELEMETRY.md) for what is collected and how to enable or disable it.
