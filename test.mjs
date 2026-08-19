@@ -117,7 +117,11 @@ describe('getSpa: polar night (Tromso, arctic winter)', () => {
     { elevation: 0, pressure: 1013, temperature: -2 },
   );
 
-  it('sunrise < 0 (polar night sentinel)', () => assert.ok(TROMSO_POLAR.sunrise < 0));
+  // Was `sunrise < 0`, which asserted the raw -99999 sentinel reached callers. That is
+  // exactly the defect PKG-03 fixes: a finite negative number passes every
+  // `Number.isFinite` guard downstream and renders as a real clock time. "No sunrise
+  // today" is NaN at the API boundary; the sentinel stays internal to the NREL port.
+  it('sunrise is NaN (no sunrise during polar night)', () => assert.ok(Number.isNaN(TROMSO_POLAR.sunrise)));
   it('zenith > 90 (sun below horizon)', () => assert.ok(TROMSO_POLAR.zenith > 90));
 });
 
@@ -319,5 +323,60 @@ describe('function code validation', () => {
     const r = calcSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, {}, []);
     assert.equal(typeof r.sunrise, 'string');
     assert.ok(!('angles' in r));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PKG-03 — the NREL "no rise/set" sentinel must never reach the public API.
+//
+// The reference C implementation writes -99999 into srha/ssha/sta/suntransit/
+// sunrise/sunset when the sun does not cross the horizon on a given day. That is a
+// FINITE number, so `Number.isFinite` guards in downstream consumers accepted it and
+// rendered it as a real clock time (`((-99999 % 24) + 24) % 24 === 9` → "09:00").
+// The port stays faithful to the reference internally; the wrapper is responsible for
+// presenting "no such event" as NaN.
+// ---------------------------------------------------------------------------
+describe('PKG-03 — polar sentinel never escapes getSpa', () => {
+  const POLAR = [
+    { name: 'Longyearbyen midnight sun', date: '2026-06-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Longyearbyen polar night', date: '2026-12-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Tromso midnight sun', date: '2026-06-21T12:00:00Z', lat: 69.6492, lng: 18.9553, tz: 2 },
+    { name: 'McMurdo polar night', date: '2026-06-21T12:00:00Z', lat: -77.8419, lng: 166.6863, tz: 13 },
+  ];
+
+  for (const c of POLAR) {
+    it(`${c.name}: sunrise/solarNoon/sunset are NaN, never -99999`, () => {
+      const r = getSpa(new Date(c.date), c.lat, c.lng, c.tz);
+      for (const key of ['sunrise', 'solarNoon', 'sunset']) {
+        assert.ok(
+          Number.isNaN(r[key]),
+          `${key} should be NaN for a day with no rise/set, got ${r[key]}`,
+        );
+      }
+    });
+
+    it(`${c.name}: custom-angle results are NaN, never sentinel-derived`, () => {
+      // A depression angle can be geometrically reachable on a day that has no sunrise.
+      // The angle time is measured from solar transit, so a sentinel transit produced
+      // values like -100001.38 — finite, plausible-looking, and completely wrong.
+      const r = getSpa(new Date(c.date), c.lat, c.lng, c.tz, null, [108, 105]);
+      for (const a of r.angles) {
+        for (const key of ['sunrise', 'sunset']) {
+          const v = a[key];
+          assert.ok(
+            Number.isNaN(v) || Math.abs(v) < 48,
+            `angle ${key} must be NaN or a plausible hour, got ${v}`,
+          );
+        }
+      }
+    });
+  }
+
+  it('a normal latitude is untouched', () => {
+    const r = getSpa(new Date('2026-03-20T12:00:00Z'), 40.7128, -74.006, -4);
+    assert.ok(Number.isFinite(r.sunrise) && r.sunrise > 0 && r.sunrise < 24);
+    assert.ok(Number.isFinite(r.solarNoon) && r.solarNoon > 0 && r.solarNoon < 24);
+    assert.ok(Number.isFinite(r.sunset) && r.sunset > 0 && r.sunset < 24);
+    assert.ok(r.sunrise < r.solarNoon && r.solarNoon < r.sunset);
   });
 });

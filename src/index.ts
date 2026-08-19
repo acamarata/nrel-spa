@@ -100,6 +100,36 @@ export function formatTime(hours: number): string {
 }
 
 /**
+ * The value the NREL reference implementation writes into srha, ssha, sta, suntransit,
+ * sunrise and sunset when the sun does not cross the horizon on the requested day.
+ */
+const SPA_NO_EVENT = -99999;
+
+/**
+ * True when a raw SPA field carries the "no such event" sentinel rather than a time.
+ *
+ * WHY a helper and not a bare `=== -99999`: the sentinel is arithmetic-poisoned downstream
+ * (a custom angle offsets it by a few hours, giving -100001.38 and similar), so the test
+ * has to be a magnitude check rather than an equality check. Real fractional-hour times
+ * are within roughly [-24, 48] once timezone and day-wrap are accounted for.
+ */
+function isNoEvent(value: number): boolean {
+  return !Number.isFinite(value) || value <= SPA_NO_EVENT + 1000;
+}
+
+/**
+ * Present a raw SPA rise/transit/set field to callers, mapping "no such event" to NaN.
+ *
+ * The port stays faithful to the reference C internally — the sentinel is what NREL
+ * specifies — but no sentinel may cross the public API. It is a finite number, so every
+ * `Number.isFinite` guard in every downstream consumer accepted it and rendered it as a
+ * real clock time (PKG-03).
+ */
+function presentRts(value: number): number {
+  return isNoEvent(value) ? NaN : value;
+}
+
+/**
  * Re-solve hour angles for a custom zenith angle (e.g., twilight calculations).
  *
  * Common angles: civil twilight 96, nautical twilight 102, astronomical twilight 108.
@@ -119,6 +149,14 @@ function adjustForCustomAngle(
   const cosH0 = (Math.cos(Z) - Math.sin(phi) * Math.sin(delta)) / (Math.cos(phi) * Math.cos(delta));
 
   if (cosH0 < -1 || cosH0 > 1) {
+    return { sunrise: NaN, sunset: NaN };
+  }
+
+  // A depression angle can be geometrically reachable on a day the sun never rises, but
+  // these times are measured from solar transit — and the reference implementation blanks
+  // transit to the sentinel on such days. Offsetting from it produced finite, plausible,
+  // completely wrong values such as -100001.38 (PKG-03).
+  if (isNoEvent(base.suntransit)) {
     return { sunrise: NaN, sunset: NaN };
   }
 
@@ -274,9 +312,9 @@ export function getSpa(
   const result: SpaResult = {
     zenith: d.zenith,
     azimuth: d.azimuth,
-    sunrise: hasRts ? d.sunrise : NaN,
-    solarNoon: hasRts ? d.suntransit : NaN,
-    sunset: hasRts ? d.sunset : NaN,
+    sunrise: hasRts ? presentRts(d.sunrise) : NaN,
+    solarNoon: hasRts ? presentRts(d.suntransit) : NaN,
+    sunset: hasRts ? presentRts(d.sunset) : NaN,
   };
 
   if (angles && angles.length > 0) {
