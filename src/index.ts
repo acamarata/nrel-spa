@@ -60,6 +60,8 @@ interface SpaDataInstance {
   sunrise: number;
   sunset: number;
   suntransit: number;
+  /** Equation of time in minutes. Computed unconditionally, including on polar days. */
+  eot: number;
   delta: number;
   [key: string]: number;
 }
@@ -127,6 +129,33 @@ function isNoEvent(value: number): boolean {
  */
 function presentRts(value: number): number {
   return isNoEvent(value) ? NaN : value;
+}
+
+/**
+ * Local solar transit (solar noon) in fractional hours of local clock time.
+ *
+ * Sunrise and sunset genuinely stop existing above the polar circles, but the sun crosses
+ * the local meridian every single day of the year everywhere on Earth, so solar noon is
+ * always defined. The NREL reference nonetheless blanks `suntransit` alongside sunrise and
+ * sunset in its no-rise/set branch, which downstream reads as "there is no solar noon
+ * today" and takes Dhuhr and Asr with it (PKG-05).
+ *
+ * The equation of time is computed unconditionally by the reference, before that branch,
+ * so transit can be recovered from it:
+ *
+ *     transit = 12 - (4 * (longitude - 15 * timezone) + eot) / 60
+ *
+ * This is used ONLY where the reference has nothing to offer. Where the reference does
+ * produce a transit, that value is passed through untouched, so no existing result moves.
+ * Across normal latitudes the two agree to within about one second (the reference refines
+ * transit with an hour-angle correction this closed form omits).
+ */
+function transitFromEquationOfTime(d: SpaDataInstance): number {
+  const timeCorrectionMinutes = 4 * (d.longitude - 15 * d.timezone) + d.eot;
+  const transit = 12 - timeCorrectionMinutes / 60;
+  if (!Number.isFinite(transit)) return NaN;
+  // Extreme longitude/timezone pairings can push transit outside the civil day.
+  return ((transit % 24) + 24) % 24;
 }
 
 /**
@@ -313,7 +342,11 @@ export function getSpa(
     zenith: d.zenith,
     azimuth: d.azimuth,
     sunrise: hasRts ? presentRts(d.sunrise) : NaN,
-    solarNoon: hasRts ? presentRts(d.suntransit) : NaN,
+    // Solar noon is defined every day at every latitude — recover it when the reference
+    // discarded it along with the (genuinely absent) sunrise and sunset.
+    solarNoon: hasRts
+      ? (isNoEvent(d.suntransit) ? transitFromEquationOfTime(d) : d.suntransit)
+      : NaN,
     sunset: hasRts ? presentRts(d.sunset) : NaN,
   };
 
