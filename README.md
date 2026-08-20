@@ -13,6 +13,24 @@ Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Compu
 npm install nrel-spa
 ```
 
+## Polar day and polar night
+
+Sunrise and sunset genuinely stop occurring above the polar circles. On those days
+`sunrise` and `sunset` are returned as `NaN`, and `calcSpa` renders them as `"N/A"`.
+
+`solarNoon` is **always** available. The sun crosses the local meridian every day
+everywhere on Earth, so solar transit is defined even when the crossing happens below the
+horizon — which is what happens throughout polar night. Callers that need a time of day
+during those weeks should anchor to `solarNoon` rather than treating the absent sunrise as
+a failure.
+
+The NREL reference implementation signals "no such event" with the magic number `-99999`.
+That value never crosses this package's public API: it is a finite number, so it silently
+passes `Number.isFinite` checks and renders as a real clock time (`-99999` reduced modulo
+24 is exactly 9, so it displays as "09:00"). The internal port stays faithful to the
+reference; the boundary converts it.
+
+
 ## Quick Start
 
 ```javascript
