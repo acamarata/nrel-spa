@@ -117,7 +117,11 @@ describe('getSpa: polar night (Tromso, arctic winter)', () => {
     { elevation: 0, pressure: 1013, temperature: -2 },
   );
 
-  it('sunrise < 0 (polar night sentinel)', () => assert.ok(TROMSO_POLAR.sunrise < 0));
+  // Was `sunrise < 0`, which asserted the raw -99999 sentinel reached callers. That is
+  // exactly the defect PKG-03 fixes: a finite negative number passes every
+  // `Number.isFinite` guard downstream and renders as a real clock time. "No sunrise
+  // today" is NaN at the API boundary; the sentinel stays internal to the NREL port.
+  it('sunrise is NaN (no sunrise during polar night)', () => assert.ok(Number.isNaN(TROMSO_POLAR.sunrise)));
   it('zenith > 90 (sun below horizon)', () => assert.ok(TROMSO_POLAR.zenith > 90));
 });
 
@@ -319,5 +323,148 @@ describe('function code validation', () => {
     const r = calcSpa(new Date('2025-06-21T00:00:00Z'), 40.7128, -74.006, -4, {}, []);
     assert.equal(typeof r.sunrise, 'string');
     assert.ok(!('angles' in r));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PKG-03 — the NREL "no rise/set" sentinel must never reach the public API.
+//
+// The reference C implementation writes -99999 into srha/ssha/sta/suntransit/
+// sunrise/sunset when the sun does not cross the horizon on a given day. That is a
+// FINITE number, so `Number.isFinite` guards in downstream consumers accepted it and
+// rendered it as a real clock time (`((-99999 % 24) + 24) % 24 === 9` → "09:00").
+// The port stays faithful to the reference internally; the wrapper is responsible for
+// presenting "no such event" as NaN.
+// ---------------------------------------------------------------------------
+describe('PKG-03 — polar sentinel never escapes getSpa', () => {
+  const POLAR = [
+    { name: 'Longyearbyen midnight sun', date: '2026-06-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Longyearbyen polar night', date: '2026-12-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Tromso midnight sun', date: '2026-06-21T12:00:00Z', lat: 69.6492, lng: 18.9553, tz: 2 },
+    { name: 'McMurdo polar night', date: '2026-06-21T12:00:00Z', lat: -77.8419, lng: 166.6863, tz: 13 },
+  ];
+
+  for (const c of POLAR) {
+    it(`${c.name}: no field carries a sentinel value`, () => {
+      const r = getSpa(new Date(c.date), c.lat, c.lng, c.tz);
+      // Sunrise and sunset genuinely do not occur: NaN.
+      for (const key of ['sunrise', 'sunset']) {
+        assert.ok(
+          Number.isNaN(r[key]),
+          `${key} should be NaN for a day with no rise/set, got ${r[key]}`,
+        );
+      }
+      // Solar noon always occurs (see PKG-05) — it must be a real time, never a sentinel.
+      assert.ok(
+        Number.isFinite(r.solarNoon) && r.solarNoon >= 0 && r.solarNoon < 24,
+        `solarNoon should be a real time of day, got ${r.solarNoon}`,
+      );
+    });
+
+    it(`${c.name}: custom-angle results are NaN, never sentinel-derived`, () => {
+      // A depression angle can be geometrically reachable on a day that has no sunrise.
+      // The angle time is measured from solar transit, so a sentinel transit produced
+      // values like -100001.38 — finite, plausible-looking, and completely wrong.
+      const r = getSpa(new Date(c.date), c.lat, c.lng, c.tz, null, [108, 105]);
+      for (const a of r.angles) {
+        for (const key of ['sunrise', 'sunset']) {
+          const v = a[key];
+          assert.ok(
+            Number.isNaN(v) || Math.abs(v) < 48,
+            `angle ${key} must be NaN or a plausible hour, got ${v}`,
+          );
+        }
+      }
+    });
+  }
+
+  it('a normal latitude is untouched', () => {
+    const r = getSpa(new Date('2026-03-20T12:00:00Z'), 40.7128, -74.006, -4);
+    assert.ok(Number.isFinite(r.sunrise) && r.sunrise > 0 && r.sunrise < 24);
+    assert.ok(Number.isFinite(r.solarNoon) && r.solarNoon > 0 && r.solarNoon < 24);
+    assert.ok(Number.isFinite(r.sunset) && r.sunset > 0 && r.sunset < 24);
+    assert.ok(r.sunrise < r.solarNoon && r.solarNoon < r.sunset);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PKG-05 — solar transit exists every day at every latitude.
+//
+// Sunrise and sunset genuinely stop existing above the polar circles, but the sun still
+// crosses the local meridian every single day, so solar noon is always defined. The NREL
+// reference blanks suntransit alongside sunrise/sunset in its no-rise/set branch, which
+// propagated as "there is no Dhuhr and no Asr today" — wrong. Both are computable from
+// solar noon regardless of whether the sun rises.
+// ---------------------------------------------------------------------------
+describe('PKG-05 — solarNoon survives polar day and polar night', () => {
+  const POLAR = [
+    { name: 'Longyearbyen midnight sun', date: '2026-06-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Longyearbyen polar night', date: '2026-12-21T12:00:00Z', lat: 78.22334, lng: 15.64689, tz: 1 },
+    { name: 'Tromso midnight sun', date: '2026-06-21T12:00:00Z', lat: 69.6492, lng: 18.9553, tz: 2 },
+    { name: 'McMurdo polar night', date: '2026-06-21T12:00:00Z', lat: -77.8419, lng: 166.6863, tz: 13 },
+    { name: 'McMurdo midnight sun', date: '2026-12-21T12:00:00Z', lat: -77.8419, lng: 166.6863, tz: 13 },
+  ];
+
+  for (const c of POLAR) {
+    it(`${c.name}: solarNoon is a real time of day`, () => {
+      const r = getSpa(new Date(c.date), c.lat, c.lng, c.tz);
+      assert.ok(Number.isFinite(r.solarNoon), `solarNoon should be finite, got ${r.solarNoon}`);
+      assert.ok(r.solarNoon >= 0 && r.solarNoon < 24, `solarNoon out of range: ${r.solarNoon}`);
+      // Sunrise and sunset legitimately remain absent.
+      assert.ok(Number.isNaN(r.sunrise));
+      assert.ok(Number.isNaN(r.sunset));
+    });
+  }
+
+  it('normal latitudes keep the reference transit value exactly', () => {
+    // The derivation is only used where the reference has nothing to offer. Anywhere the
+    // reference produces a transit, that value must be passed through untouched.
+    const cases = [
+      ['2026-03-15T12:00:00Z', 40.7128, -74.006, -4, 13.080663819661],
+      ['2026-06-21T12:00:00Z', 21.3891, 39.8579, 3, 12.372694956],
+    ];
+    for (const [d, lat, lng, tz, expected] of cases) {
+      const r = getSpa(new Date(d), lat, lng, tz);
+      assert.ok(Math.abs(r.solarNoon - expected) < 1e-6, `transit drifted: ${r.solarNoon} vs ${expected}`);
+    }
+  });
+
+  it('polar transit agrees with the reference on the days either side of the gap', () => {
+    // Continuity check: the last day with a sunrise and the first day without one must
+    // have solar noons within a couple of minutes of each other. A broken derivation
+    // shows up as a discontinuity at the boundary.
+    const lat = 69.6492, lng = 18.9553, tz = 2;
+    let prev = null;
+    for (let day = 15; day <= 30; day++) {
+      const r = getSpa(new Date(Date.UTC(2026, 4, day, 12)), lat, lng, tz);
+      assert.ok(Number.isFinite(r.solarNoon), `day ${day} lost solar noon`);
+      if (prev !== null) {
+        assert.ok(Math.abs(r.solarNoon - prev) < 0.05, `discontinuity at May ${day}: ${prev} -> ${r.solarNoon}`);
+      }
+      prev = r.solarNoon;
+    }
+  });
+});
+
+describe('PKG-05 — what solarNoon means when the sun is below the horizon', () => {
+  // Solar transit is the meridian crossing. It happens every day everywhere, including
+  // days when the crossing occurs below the horizon (polar night). This library reports
+  // the astronomical event; deciding whether a below-horizon transit is usable for a
+  // given purpose belongs to the caller, not here. Pinned so the distinction is not
+  // silently "fixed" later by someone assuming transit implies daylight.
+  it('polar night transit is reported even though the sun stays down', () => {
+    const r = getSpa(new Date('2026-12-21T12:00:00Z'), 78.22334, 15.64689, 1);
+    assert.ok(Number.isFinite(r.solarNoon), 'transit still occurs during polar night');
+    assert.ok(Number.isNaN(r.sunrise) && Number.isNaN(r.sunset));
+    // The sun peaks around -11.7 degrees on this date: a real crossing, never visible.
+    const peak = getSpa(new Date('2026-12-21T10:57:00Z'), 78.22334, 15.64689, 1);
+    assert.ok(peak.zenith > 90, 'sun is below the horizon at transit');
+  });
+
+  it('polar day transit is both real and above the horizon', () => {
+    const r = getSpa(new Date('2026-06-21T12:00:00Z'), 78.22334, 15.64689, 1);
+    assert.ok(Number.isFinite(r.solarNoon));
+    const atNoon = getSpa(new Date('2026-06-21T11:02:00Z'), 78.22334, 15.64689, 1);
+    assert.ok(atNoon.zenith < 90, 'sun is well above the horizon at transit');
   });
 });
