@@ -13,6 +13,30 @@ Pure JavaScript implementation of the NREL Solar Position Algorithm (SPA). Compu
 npm install nrel-spa
 ```
 
+## Dates: a day or a moment
+
+`getSpa` answers two different kinds of question, and they do not want the same input.
+
+| You want | Depends on | Pass |
+|---|---|---|
+| `zenith`, `azimuth`, `incidence` | the exact moment | a `Date` |
+| `sunrise`, `solarNoon`, `sunset`, custom `angles` | the calendar **day** only | `'YYYY-MM-DD'` |
+
+Rise, transit and set are independent of the time of day: hold the date and vary the hour from
+00 to 23 and all three are identical to six decimal places. So for those, what matters is only
+*which day you meant* — and a `Date` cannot say. It carries no record of whether it was built
+from local or UTC parts, so `new Date(2026, 7, 22)` is `2026-08-21T14:00Z` in Tokyo and
+`2026-08-22T04:00Z` in New York. The Tokyo caller gets the previous day's sunrise, silently.
+
+```js
+getSpa('2026-08-22', lat, lng, tz);      // a day. same answer on every machine
+getSpa(new Date(), lat, lng, tz);        // a moment. correct for position
+getSpa(new Date(2026, 7, 22), ...);      // ambiguous — avoid for rise/set
+```
+
+The string form is anchored at UTC noon, the furthest point from either day boundary.
+
+
 ## Polar day and polar night
 
 Sunrise and sunset genuinely stop occurring above the polar circles. On those days

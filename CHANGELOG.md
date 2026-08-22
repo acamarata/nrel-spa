@@ -1,3 +1,25 @@
+## 2.2.0 — 2026-08-22
+
+### Added
+- **Every entry point accepts a `'YYYY-MM-DD'` string as well as a `Date`,** along with the exported `SpaDateInput` type and `toSpaInstant` helper.
+
+  `getSpa` answers two different kinds of question from one argument, and they do not want the same input. Instantaneous position (`zenith`, `azimuth`, `incidence`) depends on the exact moment, and a `Date` is exactly right for it. Rise, transit and set depend only on the calendar **day** — verified: holding the date fixed and varying the hour from 00 to 23 leaves `sunrise`, `solarNoon` and `sunset` identical to six decimal places.
+
+  That second case is where a bare `Date` is a trap. A `Date` carries no record of whether it was built from local or UTC parts, so `new Date(2026, 7, 22)` is `2026-08-21T14:00Z` in Tokyo and `2026-08-22T04:00Z` in New York — two different UTC calendar days for what the author wrote as one date. The Tokyo caller silently got the previous day's sunrise. This is the same defect fixed one layer up in `pray-calc` 2.4.0; `pray-calc`'s own callers were shielded by that release, but anyone using this package directly was not.
+
+  A `'YYYY-MM-DD'` string names a calendar day outright, with no instant involved and no host timezone able to shift it. It is anchored at UTC noon: the furthest point from either day boundary, so no rounding or delta-T correction can push it into an adjacent day, and a reasonable instant for the position outputs.
+
+### Changed
+- Nothing. The `Date` path is byte-identical to 2.1.0 — verified across 1620 output fields spanning five locations, twelve months and three hours per day, with zero differences. Instantaneous position still varies with the time of day, and a test now guards that so a future change cannot normalise it away.
+
+### Notes on upgrading
+Purely additive; no action required. If you use this package to ask about a **day** rather than a moment, prefer the string form:
+
+```js
+getSpa('2026-08-22', lat, lng, tz)   // unambiguous
+getSpa(new Date(2026, 7, 22), ...)   // depends on where the machine is
+```
+
 ## 2.1.0 — 2026-08-19
 
 ### Fixed

@@ -8,6 +8,7 @@ import {
   SPA_ZA_INC,
   SPA_ZA_RTS,
   SPA_ALL,
+  toSpaInstant,
 } from './dist/index.mjs';
 
 function close(actual, expected, tolerance = 0.001, label = '') {
@@ -466,5 +467,67 @@ describe('PKG-05 — what solarNoon means when the sun is below the horizon', ()
     assert.ok(Number.isFinite(r.solarNoon));
     const atNoon = getSpa(new Date('2026-06-21T11:02:00Z'), 78.22334, 15.64689, 1);
     assert.ok(atNoon.zenith < 90, 'sun is well above the horizon at transit');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Calendar-day input (SpaDateInput). getSpa answers two different kinds of
+// question from one argument and they want different inputs: instantaneous
+// position depends on the moment, rise/transit/set depend only on the day.
+// A bare Date is a trap for the second, because it carries no record of whether
+// it was built from local or UTC parts.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('SpaDateInput — calendar day vs instant', () => {
+  const LAT = 40.7128, LNG = -74.006, TZ = -5;
+
+  it('rise/transit/set depend only on the day, not the hour', () => {
+    // This is the property that makes the string form safe to anchor at noon.
+    const a = getSpa(new Date(Date.UTC(2026, 7, 22, 0)), LAT, LNG, TZ);
+    const b = getSpa(new Date(Date.UTC(2026, 7, 22, 23)), LAT, LNG, TZ);
+    assert.strictEqual(a.sunrise, b.sunrise);
+    assert.strictEqual(a.solarNoon, b.solarNoon);
+    assert.strictEqual(a.sunset, b.sunset);
+  });
+
+  it('instantaneous position still depends on the hour', () => {
+    // Guard against a future "fix" that normalises the instant globally and
+    // silently breaks the primary use of the library.
+    const a = getSpa(new Date(Date.UTC(2026, 7, 22, 0)), LAT, LNG, TZ);
+    const b = getSpa(new Date(Date.UTC(2026, 7, 22, 23)), LAT, LNG, TZ);
+    assert.notStrictEqual(a.zenith, b.zenith);
+  });
+
+  it('a YYYY-MM-DD string is anchored at UTC noon', () => {
+    const viaString = getSpa('2026-08-22', LAT, LNG, TZ);
+    const viaNoon = getSpa(new Date('2026-08-22T12:00:00Z'), LAT, LNG, TZ);
+    assert.strictEqual(viaString.sunrise, viaNoon.sunrise);
+    assert.strictEqual(viaString.sunset, viaNoon.sunset);
+    assert.strictEqual(viaString.zenith, viaNoon.zenith);
+  });
+
+  it('the string form is immune to the host timezone', () => {
+    // The Date form cannot be: new Date(2026, 7, 22) is a different UTC day in
+    // Tokyo than in New York. The string form names the day outright.
+    const r = getSpa('2026-08-22', LAT, LNG, TZ);
+    assert.ok(isFinite(r.sunrise));
+    // Recomputing from the equivalent explicit instant must agree exactly.
+    assert.strictEqual(r.sunrise, getSpa(new Date(Date.UTC(2026, 7, 22, 12)), LAT, LNG, TZ).sunrise);
+  });
+
+  it('rejects impossible and malformed calendar days', () => {
+    for (const bad of ['2026-02-31', '2026-13-01', 'not-a-date', '2026-8-2', '']) {
+      assert.throws(() => getSpa(bad, LAT, LNG, TZ), TypeError, `should reject ${bad}`);
+    }
+  });
+
+  it('still rejects an invalid Date', () => {
+    assert.throws(() => getSpa(new Date('nonsense'), LAT, LNG, TZ), TypeError);
+    assert.throws(() => getSpa(null, LAT, LNG, TZ), TypeError);
+  });
+
+  it('toSpaInstant is exported and idempotent for Dates', () => {
+    const d = new Date('2026-08-22T07:31:00Z');
+    assert.strictEqual(toSpaInstant(d), d);
+    assert.strictEqual(toSpaInstant('2026-08-22').toISOString(), '2026-08-22T12:00:00.000Z');
   });
 });

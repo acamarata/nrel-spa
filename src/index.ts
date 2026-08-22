@@ -209,8 +209,66 @@ function adjustForCustomAngle(
  * @throws {RangeError} If latitude, longitude, timezone, function code, or angle values are out of range
  * @see {@link https://github.com/acamarata/nrel-spa/wiki/api/getSpa Wiki: getSpa}
  */
+/**
+ * A moment, or a calendar day.
+ *
+ * `getSpa` answers two different kinds of question from one argument, and they do not want
+ * the same input:
+ *
+ * - **Instantaneous position** (`zenith`, `azimuth`, `incidence`) depends on the exact
+ *   moment. A `Date` is exactly right for this, and its UTC components describe it
+ *   unambiguously.
+ * - **Rise, transit and set** (`sunrise`, `solarNoon`, `sunset`, and any custom `angles`)
+ *   depend only on the calendar DAY. Verified: holding the date fixed and varying the hour
+ *   from 00 to 23 leaves all three identical to six decimal places.
+ *
+ * That second case is where a bare `Date` becomes a trap. A `Date` carries no record of
+ * whether it was built from local or UTC parts, so `new Date(2026, 7, 22)` is
+ * `2026-08-21T14:00Z` in Tokyo and `2026-08-22T04:00Z` in New York — two different UTC
+ * calendar days for what the author wrote as one date. The Tokyo caller silently gets the
+ * previous day's sunrise.
+ *
+ * Passing a `'YYYY-MM-DD'` string removes the ambiguity: it names a calendar day outright,
+ * with no instant involved and no host timezone able to shift it. It is anchored at UTC
+ * noon, which is the furthest point from either day boundary and a reasonable instant for
+ * the position outputs.
+ */
+export type SpaDateInput = Date | string;
+
+/** Matches a plain calendar day, with no time and no zone. */
+const SPA_DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/**
+ * Resolve a {@link SpaDateInput} to the instant SPA should be evaluated at.
+ *
+ * @param date - A `Date`, used as-is, or a `'YYYY-MM-DD'` string, anchored at UTC noon
+ * @returns The instant to evaluate
+ * @throws TypeError if the input is neither a valid Date nor a real calendar day
+ */
+export function toSpaInstant(date: SpaDateInput): Date {
+  if (typeof date === "string") {
+    const m = SPA_DATE_ONLY.exec(date);
+    if (!m) {
+      throw new TypeError(
+        `SPA: expected a 'YYYY-MM-DD' calendar day or a Date, received '${date}'`,
+      );
+    }
+    const [, y, mo, d] = m;
+    const at = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), 12, 0, 0));
+    // Round-trip check: rejects 2026-02-31 and friends, which Date.UTC would roll over.
+    if (at.getUTCMonth() !== Number(mo) - 1 || at.getUTCDate() !== Number(d)) {
+      throw new TypeError(`SPA: '${date}' is not a real calendar day`);
+    }
+    return at;
+  }
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    throw new TypeError("SPA: date must be a valid Date object or a 'YYYY-MM-DD' string");
+  }
+  return date;
+}
+
 export function getSpa(
-  date: Date,
+  date: SpaDateInput,
   latitude: number,
   longitude: number,
   timezone?: number | null,
@@ -228,7 +286,7 @@ export function getSpa(
  * @returns Solar position result including an angles array
  */
 export function getSpa(
-  date: Date,
+  date: SpaDateInput,
   latitude: number,
   longitude: number,
   timezone: number | null | undefined,
@@ -236,16 +294,14 @@ export function getSpa(
   angles: [number, ...number[]],
 ): SpaResultWithAngles;
 export function getSpa(
-  date: Date,
+  date: SpaDateInput,
   latitude: number,
   longitude: number,
   timezone?: number | null,
   options?: SpaOptions | null,
   angles?: number[],
 ): SpaResult | SpaResultWithAngles {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new TypeError("SPA: date must be a valid Date object");
-  }
+  const at = toSpaInstant(date);
   assertFiniteNumber(latitude, "latitude");
   assertFiniteNumber(longitude, "longitude");
 
@@ -309,12 +365,15 @@ export function getSpa(
   }
 
   const d = new spa.SpaData();
-  d.year = date.getUTCFullYear();
-  d.month = date.getUTCMonth() + 1;
-  d.day = date.getUTCDate();
-  d.hour = date.getUTCHours();
-  d.minute = date.getUTCMinutes();
-  d.second = date.getUTCSeconds();
+  // `at` is the resolved instant (see toSpaInstant): the caller's Date used as-is, or UTC
+  // noon of the calendar day they named. UTC components describe that instant exactly, which
+  // is what the reference C implementation expects.
+  d.year = at.getUTCFullYear();
+  d.month = at.getUTCMonth() + 1;
+  d.day = at.getUTCDate();
+  d.hour = at.getUTCHours();
+  d.minute = at.getUTCMinutes();
+  d.second = at.getUTCSeconds();
   d.longitude = longitude;
   d.latitude = latitude;
   d.timezone = tz;
@@ -345,7 +404,9 @@ export function getSpa(
     // Solar noon is defined every day at every latitude — recover it when the reference
     // discarded it along with the (genuinely absent) sunrise and sunset.
     solarNoon: hasRts
-      ? (isNoEvent(d.suntransit) ? transitFromEquationOfTime(d) : d.suntransit)
+      ? isNoEvent(d.suntransit)
+        ? transitFromEquationOfTime(d)
+        : d.suntransit
       : NaN,
     sunset: hasRts ? presentRts(d.sunset) : NaN,
   };
