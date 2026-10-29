@@ -481,12 +481,10 @@ export function calcSpa(
       sunrise: formatTime(raw.sunrise),
       solarNoon: formatTime(raw.solarNoon),
       sunset: formatTime(raw.sunset),
-      angles: raw.angles.map(
-        (a): SpaFormattedAnglesResult => ({
-          sunrise: formatTime(a.sunrise),
-          sunset: formatTime(a.sunset),
-        }),
-      ),
+      angles: raw.angles.map((a): SpaFormattedAnglesResult => ({
+        sunrise: formatTime(a.sunrise),
+        sunset: formatTime(a.sunset),
+      })),
     };
   }
 

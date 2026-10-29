@@ -23,10 +23,7 @@ export const SPA_ZA_RTS = 2 as const;
 export const SPA_ALL = 3 as const;
 
 export type SpaFunctionCode =
-  | typeof SPA_ZA
-  | typeof SPA_ZA_INC
-  | typeof SPA_ZA_RTS
-  | typeof SPA_ALL;
+  typeof SPA_ZA | typeof SPA_ZA_INC | typeof SPA_ZA_RTS | typeof SPA_ALL;
 
 export interface SpaOptions {
   /** Observer elevation in meters above sea level. Default: 0. */
